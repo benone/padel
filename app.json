@@ -7,6 +7,9 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "packagerOpts": {
+      "port": 8082
+    },
     "splash": {
       "image": "./assets/splash-screen.png",
       "resizeMode": "cover",

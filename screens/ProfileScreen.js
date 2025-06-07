@@ -11,6 +11,19 @@ import {
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { 
+  Button, 
+  Chip, 
+  Avatar, 
+  Badge, 
+  MatchCard, 
+  PersonCard, 
+  ClubCard, 
+  StatCard, 
+  RankingCard,
+  ProgressBar,
+  TabNavigation 
+} from '../components/ui';
 
 const { width } = Dimensions.get('window');
 
@@ -57,7 +70,7 @@ export default function ProfileScreen({ navigation }) {
             </View>
             <View style={styles.statusDot} />
           </View>
-          <Text style={styles.name}>Александра Гарнес Таразона</Text>
+          <Text style={styles.name}>Александра Гарнева</Text>
           <Text style={styles.location}>📍 Ярославль, Россия</Text>
           
           {/* Stats */}
@@ -78,57 +91,47 @@ export default function ProfileScreen({ navigation }) {
 
           {/* Action Buttons */}
           <View style={styles.actionButtons}>
-            <TouchableOpacity style={styles.followButton}>
-              <Ionicons name="person-add" size={16} color="white" style={{marginRight: 6}} />
-              <Text style={styles.followButtonText}>Подписаться</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.messageButton}>
-              <Ionicons name="chatbubble-outline" size={16} color="#4f46e5" style={{marginRight: 6}} />
-              <Text style={styles.messageButtonText}>Сообщение</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.moreButton}>
-              <Ionicons name="ellipsis-horizontal" size={18} color="#6b7280" />
-            </TouchableOpacity>
+            <Button
+              title="Подписаться"
+              variant="primary"
+              icon="person-add"
+              style={{ flex: 1 }}
+              onPress={() => {}}
+            />
+            <Button
+              title="Сообщение"
+              variant="secondary"
+              icon="chatbubble-outline"
+              style={{ flex: 1 }}
+              onPress={() => {}}
+            />
+            <Button
+              title=""
+              variant="icon"
+              icon="ellipsis-horizontal"
+              onPress={() => {}}
+            />
           </View>
         </View>
 
         {/* Tabs */}
-        <View style={styles.tabsContainer}>
-          <View style={styles.tabsRow}>
-            <TouchableOpacity 
-              style={styles.tab} 
-              onPress={() => setActiveTab('activities')}
-            >
-              <Text style={activeTab === 'activities' ? styles.tabTextActive : styles.tabTextMuted}>
-                Активность
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.tab} 
-              onPress={() => setActiveTab('posts')}
-            >
-              <Text style={activeTab === 'posts' ? styles.tabTextActive : styles.tabTextMuted}>
-                Посты
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <Animated.View style={[styles.underline, { left: underlinePosition }]} />
-        </View>
+        <TabNavigation
+          tabs={[
+            { key: 'activities', label: 'Активность' },
+            { key: 'posts', label: 'Посты' }
+          ]}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
 
         {/* Tab Content */}
         {activeTab === 'activities' && (
           <View>
             {/* Sports Filter */}
             <View style={styles.sportsFilter}>
-              <TouchableOpacity style={styles.sportChipActive}>
-                <Text style={styles.sportChipActiveText}>Падел</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.sportChip}>
-                <Text style={styles.sportChipText}>Теннис</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.sportChip}>
-                <Text style={styles.sportChipText}>Пиклбол</Text>
-              </TouchableOpacity>
+              <Chip label="Падел" active={true} onPress={() => {}} />
+              <Chip label="Теннис" active={false} onPress={() => {}} />
+              <Chip label="Пиклбол" active={false} onPress={() => {}} />
             </View>
 
             {/* Level Card */}
@@ -143,10 +146,11 @@ export default function ProfileScreen({ navigation }) {
                 </View>
               </View>
               <View style={styles.progressContainer}>
-                <View style={styles.progressBar}>
-                  <Animated.View style={[styles.progressFill, { width: '64%' }]} />
-                </View>
-                <Text style={styles.levelReliability}>Надежность уровня: 64.84%</Text>
+                <ProgressBar 
+                  percentage={64.84} 
+                  showLabel={true}
+                  label="Надежность уровня: 64.84%"
+                />
               </View>
             </View>
 
@@ -155,21 +159,9 @@ export default function ProfileScreen({ navigation }) {
               <Text style={styles.sectionTitle}>Прогресс уровня</Text>
               
               <View style={styles.filterButtons}>
-                <TouchableOpacity style={styles.filterButtonActive}>
-                  <Text style={styles.filterButtonActiveText}>5 результатов</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.filterButton}>
-                  <View style={styles.filterButtonBadge}>
-                    <Text style={styles.filterButtonBadgeText}>9</Text>
-                  </View>
-                  <Text style={styles.filterButtonText}>10 результатов</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.filterButton}>
-                  <View style={styles.filterButtonBadge}>
-                    <Text style={styles.filterButtonBadgeText}>9</Text>
-                  </View>
-                  <Text style={styles.filterButtonText}>Все результаты</Text>
-                </TouchableOpacity>
+                <Chip label="5 результатов" active={true} onPress={() => {}} />
+                <Chip label="10 результатов" active={false} badge={9} onPress={() => {}} />
+                <Chip label="Все результаты" active={false} badge={9} onPress={() => {}} />
               </View>
 
               {/* Match Result */}
@@ -268,7 +260,7 @@ export default function ProfileScreen({ navigation }) {
                       <View style={styles.onlineIndicator} />
                     </View>
                     <View style={styles.playerDetails}>
-                      <Text style={styles.playerName}>Хоана</Text>
+                      <Text style={styles.playerName}>Жанна</Text>
                       <View style={styles.levelBadge}>
                         <Text style={styles.levelBadgeText}>0.66</Text>
                       </View>
@@ -285,7 +277,7 @@ export default function ProfileScreen({ navigation }) {
                       <View style={styles.onlineIndicator} />
                     </View>
                     <View style={styles.playerDetails}>
-                      <Text style={styles.playerName}>Альберт</Text>
+                      <Text style={styles.playerName}>Алексей</Text>
                       <View style={styles.levelBadge}>
                         <Text style={styles.levelBadgeText}>0.68</Text>
                       </View>
@@ -302,7 +294,7 @@ export default function ProfileScreen({ navigation }) {
                   <Text style={styles.scoreNumber}>0</Text>
                   <Text style={styles.scoreNumber}>1</Text>
                   <Text style={styles.scoreSeparator}>-</Text>
-                  <Text style={styles.winnerName}>Алех</Text>
+                  <Text style={styles.winnerName}>Олег</Text>
                 </View>
               </View>
             </View>
@@ -312,22 +304,10 @@ export default function ProfileScreen({ navigation }) {
               <Text style={styles.sectionTitle}>Статистика</Text>
               
               <View style={styles.statsGrid}>
-                <View style={styles.statCard}>
-                  <Text style={styles.statCardNumber}>37</Text>
-                  <Text style={styles.statCardLabel}>Всего</Text>
-                </View>
-                <View style={styles.statCard}>
-                  <Text style={[styles.statCardNumber, { color: '#10b981' }]}>12</Text>
-                  <Text style={[styles.statCardLabel, { color: '#10b981' }]}>Выиграно</Text>
-                </View>
-                <View style={styles.statCard}>
-                  <Text style={styles.statCardNumber}>10</Text>
-                  <Text style={styles.statCardLabel}>Последние</Text>
-                </View>
-                <View style={styles.statCard}>
-                  <Text style={[styles.statCardNumber, { color: '#10b981' }]}>4</Text>
-                  <Text style={[styles.statCardLabel, { color: '#10b981' }]}>Выиграно</Text>
-                </View>
+                <StatCard number="37" label="Всего" />
+                <StatCard number="12" label="Выиграно" color="#10b981" />
+                <StatCard number="10" label="Последние" />
+                <StatCard number="4" label="Выиграно" color="#10b981" />
               </View>
               
               <View style={styles.effectivenessCard}>
@@ -338,9 +318,12 @@ export default function ProfileScreen({ navigation }) {
                 <Text style={styles.effectivenessLabel}>Эффективность</Text>
                 <Text style={styles.effectivenessSubLabel}>Последние 10</Text>
                 <View style={styles.effectivenessProgress}>
-                  <View style={styles.effectivenessProgressBar}>
-                    <Animated.View style={[styles.effectivenessProgressFill, { width: '40%' }]} />
-                  </View>
+                  <ProgressBar 
+                    percentage={40} 
+                    color="#3b82f6"
+                    backgroundColor="#f3f4f6"
+                    height={8}
+                  />
                 </View>
               </View>
             </View>
@@ -350,70 +333,53 @@ export default function ProfileScreen({ navigation }) {
               <Text style={styles.sectionTitle}>Люди, которые играли больше всего с этим пользователем</Text>
               
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.peopleScroll}>
-                <View style={styles.personCard}>
-                  <View style={styles.personImageContainer}>
-                    <View style={styles.personInitials}>
-                      <Text style={styles.initialsText}>AC</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.personName}>Alejandro Camp...</Text>
-                  <Text style={styles.personLevel}>Уровень 0.95</Text>
-                  <Text style={styles.personMatches}>19 общих матчей</Text>
-                </View>
-                
-                <View style={styles.personCard}>
-                  <Image 
-                    source={{ uri: 'https://images.unsplash.com/photo-1494790108755-2616c5fab5e7?w=200&h=200&fit=crop&crop=face' }}
-                    style={styles.personImage}
-                  />
-                  <Text style={styles.personName}>Мария Вос</Text>
-                  <Text style={styles.personLevel}>Уровень 1.38</Text>
-                  <Text style={styles.personMatches}>5 общих матчей</Text>
-                </View>
-                
-                <View style={styles.personCard}>
-                  <Image 
-                    source={{ uri: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face' }}
-                    style={styles.personImage}
-                  />
-                  <Text style={styles.personName}>Серхио</Text>
-                  <Text style={styles.personLevel}>Уровень 0.84</Text>
-                  <Text style={styles.personMatches}>4 общих матча</Text>
-                </View>
+                <PersonCard
+                  initials="AC"
+                  name="Александр К."
+                  level="0.95"
+                  matches="19"
+                  onPress={() => {}}
+                />
+                <PersonCard
+                  avatar="https://images.unsplash.com/photo-1494790108755-2616c5fab5e7?w=200&h=200&fit=crop&crop=face"
+                  name="Мария Вос"
+                  level="1.38"
+                  matches="5"
+                  onPress={() => {}}
+                />
+                <PersonCard
+                  avatar="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face"
+                  name="Сергей"
+                  level="0.84"
+                  matches="4"
+                  onPress={() => {}}
+                />
               </ScrollView>
             </View>
 
             {/* Clubs where Alejandra plays */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Клубы, где играет Алехандра</Text>
+              <Text style={styles.sectionTitle}>Клубы, где играет Александра</Text>
               
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.clubsScroll}>
-                <View style={styles.clubCard}>
-                  <Image 
-                    source={{ uri: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=300&h=200&fit=crop' }}
-                    style={styles.clubImage}
-                  />
-                  <Text style={styles.clubName}>SUMA Pádel</Text>
-                  <Text style={styles.clubLocation}>Patacona</Text>
-                </View>
-                
-                <View style={styles.clubCard}>
-                  <Image 
-                    source={{ uri: 'https://images.unsplash.com/photo-1544966503-7fdb27fca2d8?w=300&h=200&fit=crop' }}
-                    style={styles.clubImage}
-                  />
-                  <Text style={styles.clubName}>The Padel Box</Text>
-                  <Text style={styles.clubLocation}>Les Corts</Text>
-                </View>
-                
-                <View style={styles.clubCard}>
-                  <Image 
-                    source={{ uri: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop' }}
-                    style={styles.clubImage}
-                  />
-                  <Text style={styles.clubName}>Fair Play</Text>
-                  <Text style={styles.clubLocation}>Барселона</Text>
-                </View>
+                <ClubCard
+                  image="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=300&h=200&fit=crop"
+                  name="Падел Центр СУМА"
+                  location="Пушкин"
+                  onPress={() => {}}
+                />
+                <ClubCard
+                  image="https://images.unsplash.com/photo-1544966503-7fdb27fca2d8?w=300&h=200&fit=crop"
+                  name="Падел Арена"
+                  location="Васильевский остров"
+                  onPress={() => {}}
+                />
+                <ClubCard
+                  image="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop"
+                  name="Fair Play"
+                  location="Санкт-Петербург"
+                  onPress={() => {}}
+                />
               </ScrollView>
             </View>
 
@@ -422,15 +388,15 @@ export default function ProfileScreen({ navigation }) {
               <Text style={styles.sectionTitle}>Рейтинги</Text>
               
               <View style={styles.rankingsContainer}>
-                <View style={styles.rankingCard}>
-                  <Text style={styles.rankingTitle}>Рейтинг падел уровня</Text>
-                  <Text style={styles.rankingValue}>#0.69<Text style={styles.rankingUnit}>LvL</Text></Text>
-                </View>
-                
-                <View style={styles.rankingCard}>
-                  <Text style={styles.rankingTitle}>Глобальный рейтинг падел</Text>
-                  <Text style={styles.rankingValue}>#3,154.74</Text>
-                </View>
+                <RankingCard
+                  title="Рейтинг падел уровня"
+                  value="#0.69"
+                  unit="LvL"
+                />
+                <RankingCard
+                  title="Глобальный рейтинг падел"
+                  value="#3,154.74"
+                />
               </View>
             </View>
           </View>
