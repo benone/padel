@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -48,6 +48,23 @@ export default function BookingScreen({ navigation }) {
     outputRange: [1, 0.3],
     extrapolate: 'clamp',
   });
+  
+  const underlinePosition = useRef(new Animated.Value(10)).current;
+  
+  const tabPositions = {
+    home: 10,
+    reserve: 120,
+    matches: 280,
+    active: 440
+  };
+  
+  useEffect(() => {
+    Animated.timing(underlinePosition, {
+      toValue: tabPositions[activeTab],
+      duration: 150,
+      useNativeDriver: false,
+    }).start();
+  }, [activeTab]);
 
   const dates = [
     { day: 'ПТ', date: 6, month: 'Июн' },
@@ -110,31 +127,34 @@ export default function BookingScreen({ navigation }) {
           <Text style={styles.address}>п. Нагорный, ул. Дачная, 25</Text>
 
           {/* tabs */}
-          <View style={styles.tabsRow}>
-            <TouchableOpacity 
-              style={[styles.tab, activeTab === 'home' && styles.tabActive]} 
-              onPress={() => setActiveTab('home')}
-            >
-              <Text style={activeTab === 'home' ? styles.tabTextActive : styles.tabTextMuted}>Главная</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.tab, activeTab === 'reserve' && styles.tabActive]} 
-              onPress={() => setActiveTab('reserve')}
-            >
-              <Text style={activeTab === 'reserve' ? styles.tabTextActive : styles.tabTextMuted}>Забронировать</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.tab, activeTab === 'matches' && styles.tabActive]} 
-              onPress={() => setActiveTab('matches')}
-            >
-              <Text style={activeTab === 'matches' ? styles.tabTextActive : styles.tabTextMuted}>Открытые матчи</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.tab, activeTab === 'active' && styles.tabActive]} 
-              onPress={() => setActiveTab('active')}
-            >
-              <Text style={activeTab === 'active' ? styles.tabTextActive : styles.tabTextMuted}>Активные</Text>
-            </TouchableOpacity>
+          <View style={styles.tabsContainer}>
+            <View style={styles.tabsRow}>
+              <TouchableOpacity 
+                style={styles.tab} 
+                onPress={() => setActiveTab('home')}
+              >
+                <Text style={activeTab === 'home' ? styles.tabTextActive : styles.tabTextMuted}>Главная</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.tab} 
+                onPress={() => setActiveTab('reserve')}
+              >
+                <Text style={activeTab === 'reserve' ? styles.tabTextActive : styles.tabTextMuted}>Забронировать</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.tab} 
+                onPress={() => setActiveTab('matches')}
+              >
+                <Text style={activeTab === 'matches' ? styles.tabTextActive : styles.tabTextMuted}>Открытые матчи</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.tab} 
+                onPress={() => setActiveTab('active')}
+              >
+                <Text style={activeTab === 'active' ? styles.tabTextActive : styles.tabTextMuted}>Активные</Text>
+              </TouchableOpacity>
+            </View>
+            <Animated.View style={[styles.underline, { left: underlinePosition }]} />
           </View>
         </View>
 
@@ -376,11 +396,28 @@ const styles = StyleSheet.create({
   address: { fontSize: 16, color: '#6b7280', marginBottom: 20 },
 
   /* Tabs */
-  tabsRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#e5e7eb' },
-  tab: { paddingBottom: 12, marginRight: 24 },
-  tabActive: { borderBottomWidth: 2, borderBottomColor: '#1f2937' },
+  tabsContainer: {
+    position: 'relative',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  tabsRow: { flexDirection: 'row' },
+  tab: { 
+    paddingBottom: 12, 
+    paddingHorizontal: 12,
+    minWidth: 100,
+    alignItems: 'center',
+  },
   tabTextMuted: { fontSize: 16, color: '#6b7280' },
   tabTextActive: { fontSize: 16, fontWeight: '600', color: '#1f2937' },
+  underline: {
+    position: 'absolute',
+    bottom: 0,
+    height: 2,
+    width: 80,
+    backgroundColor: '#1f2937',
+    borderRadius: 1,
+  },
 
   /* Scroll content */
   scrollBody: { flexGrow: 1, paddingBottom: 100 },

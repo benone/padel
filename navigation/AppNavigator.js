@@ -2,6 +2,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import TabNavigator from './TabNavigator';
 import BookingScreen from '../screens/BookingScreen';
 import ClubHomeScreen from '../screens/ClubHomeScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Stack = createStackNavigator();
 
@@ -29,6 +30,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Main" component={TabNavigator} />
       <Stack.Screen name="Booking" component={BookingScreen} />
       <Stack.Screen name="ClubHome" component={ClubHomeScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} />
     </Stack.Navigator>
   );
 }
