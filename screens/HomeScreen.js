@@ -1,6 +1,12 @@
 import { View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+// Import local assets
+const assets = {
+  courtImage1: require('../assets/court-bg-1.png'),
+  courtImage2: require('../assets/court-bg-2.png'),
+};
+
 const { width } = Dimensions.get('window');
 const cardWidth = (width - 48) / 2;
 
@@ -28,11 +34,12 @@ export default function HomeScreen({ navigation }) {
               width: cardWidth
             }}
           >
-            <View style={{ position: 'relative' }}>
+            <View style={{ position: 'relative', backgroundColor: '#e3f2fd', height: 120 }}>
               <Image 
-                source={{ uri: 'https://static.tildacdn.com/tild3734-3865-4165-a531-633635373766/BG.png' }}
+                source={assets.courtImage1}
                 style={{ width: '100%', height: 120 }}
                 resizeMode="cover"
+                onError={(e) => console.log('Image 1 error:', e.nativeEvent.error)}
               />
               <View style={{ 
                 position: 'absolute',
@@ -77,11 +84,12 @@ export default function HomeScreen({ navigation }) {
               width: cardWidth
             }}
           >
-            <View style={{ position: 'relative' }}>
+            <View style={{ position: 'relative', backgroundColor: '#f3e5f5', height: 120 }}>
               <Image 
-                source={{ uri: 'https://static.tildacdn.com/tild3838-3466-4339-a535-393363653138/BG.png' }}
+                source={assets.courtImage2}
                 style={{ width: '100%', height: 120 }}
                 resizeMode="cover"
+                onError={(e) => console.log('Image 2 error:', e.nativeEvent.error)}
               />
               <View style={{ 
                 position: 'absolute',
