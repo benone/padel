@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "temp-padel",
-    "slug": "temp-padel",
+    "name": "Padel Booking",
+    "slug": "padestar",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,22 +11,36 @@
       "port": 8082
     },
     "splash": {
-      "image": "./assets/splash-screen.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#000000"
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1e3a4a"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kirill.padel.booking",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "package": "com.kirill.padel.booking",
       "edgeToEdgeEnabled": true
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "905c3099-761f-41a0-b78e-6b35f90e528a"
+      }
+    },
+    "owner": "benone1"
   }
 }

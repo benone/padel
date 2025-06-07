@@ -1,3 +1,4 @@
+import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import TabNavigator from './TabNavigator';
 import BookingScreen from '../screens/BookingScreen';
@@ -7,6 +8,7 @@ import OpenMatchesScreen from '../screens/OpenMatchesScreen';
 import MatchDetailsScreen from '../screens/MatchDetailsScreen';
 import NewMatchScreen from '../screens/NewMatchScreen';
 import ComponentsLibrary from '../components/ComponentsLibrary';
+import { ROUTES, NAVIGATION_CONFIG } from '../constants';
 
 const Stack = createStackNavigator();
 
@@ -15,30 +17,17 @@ export default function AppNavigator() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        cardStyleInterpolator: ({ current, layouts }) => {
-          return {
-            cardStyle: {
-              transform: [
-                {
-                  translateX: current.progress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [layouts.screen.width, 0],
-                  }),
-                },
-              ],
-            },
-          };
-        },
+        cardStyleInterpolator: NAVIGATION_CONFIG.cardStyleInterpolator,
       }}
     >
-      <Stack.Screen name="Main" component={TabNavigator} />
-      <Stack.Screen name="Booking" component={BookingScreen} />
-      <Stack.Screen name="ClubHome" component={ClubHomeScreen} />
-      <Stack.Screen name="Profile" component={ProfileScreen} />
-      <Stack.Screen name="OpenMatches" component={OpenMatchesScreen} />
-      <Stack.Screen name="MatchDetails" component={MatchDetailsScreen} />
-      <Stack.Screen name="NewMatch" component={NewMatchScreen} />
-      <Stack.Screen name="ComponentsLibrary" component={ComponentsLibrary} />
+      <Stack.Screen name={ROUTES.MAIN} component={TabNavigator} />
+      <Stack.Screen name={ROUTES.BOOKING} component={BookingScreen} />
+      <Stack.Screen name={ROUTES.CLUB_HOME} component={ClubHomeScreen} />
+      <Stack.Screen name={ROUTES.PROFILE} component={ProfileScreen} />
+      <Stack.Screen name={ROUTES.OPEN_MATCHES} component={OpenMatchesScreen} />
+      <Stack.Screen name={ROUTES.MATCH_DETAILS} component={MatchDetailsScreen} />
+      <Stack.Screen name={ROUTES.NEW_MATCH} component={NewMatchScreen} />
+      <Stack.Screen name={ROUTES.COMPONENTS_LIBRARY} component={ComponentsLibrary} />
     </Stack.Navigator>
   );
 }

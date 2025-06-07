@@ -1,27 +1,38 @@
+import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/HomeScreen';
 import CommunityScreen from '../screens/CommunityScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import CustomHeader from '../components/CustomHeader';
+import { colors, spacing } from '../constants';
 
 const Tab = createBottomTabNavigator();
 
+const TAB_CONFIG = {
+  Home: {
+    title: 'Главная',
+    iconFocused: 'home',
+    iconOutline: 'home-outline',
+  },
+  Community: {
+    title: 'Сообщество',
+    iconFocused: 'people',
+    iconOutline: 'people-outline',
+  },
+  Profile: {
+    title: 'Профиль',
+    iconFocused: 'person',
+    iconOutline: 'person-outline',
+  },
+};
+
 function TabIcon({ focused, name }) {
-  const iconMap = {
-    'Home': focused ? 'home' : 'home-outline',
-    'Community': focused ? 'people' : 'people-outline', 
-    'Profile': focused ? 'person' : 'person-outline'
-  };
+  const config = TAB_CONFIG[name];
+  const iconName = focused ? config.iconFocused : config.iconOutline;
+  const iconColor = focused ? colors.primary[600] : colors.gray[400];
   
-  return (
-    <Ionicons 
-      name={iconMap[name]}
-      size={32}
-      color={focused ? '#2563eb' : '#9ca3af'}
-    />
-  );
+  return <Ionicons name={iconName} size={32} color={iconColor} />;
 }
 
 export default function TabNavigator() {
@@ -31,10 +42,10 @@ export default function TabNavigator() {
         tabBarIcon: ({ focused }) => (
           <TabIcon focused={focused} name={route.name} />
         ),
-        tabBarActiveTintColor: '#2563eb',
-        tabBarInactiveTintColor: '#9ca3af',
+        tabBarActiveTintColor: colors.primary[600],
+        tabBarInactiveTintColor: colors.gray[400],
         tabBarLabelStyle: {
-          marginTop: 8,
+          marginTop: spacing.sm,
         },
         tabBarStyle: {
           backgroundColor: '#ffffff',
@@ -47,9 +58,9 @@ export default function TabNavigator() {
         header: ({ route }) => <CustomHeader title={route.name} />,
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Главная' }} />
-      <Tab.Screen name="Community" component={CommunityScreen} options={{ title: 'Сообщество' }} />
-      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Профиль' }} />
+      <Tab.Screen name="Home" component={HomeScreen} options={{ title: TAB_CONFIG.Home.title }} />
+      <Tab.Screen name="Community" component={CommunityScreen} options={{ title: TAB_CONFIG.Community.title }} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: TAB_CONFIG.Profile.title }} />
     </Tab.Navigator>
   );
 }
