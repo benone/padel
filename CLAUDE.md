@@ -7,71 +7,81 @@ This is a React Native Expo application for padel court booking and community fe
 
 ## Common Commands
 ```bash
+# Development
 npm start          # Start development server on port 8082
 npm run android    # Start with Android simulator
 npm run ios        # Start with iOS simulator
 npm run web        # Start web version
+
+# Building for distribution
+npm run build:android    # Build Android APK for sharing
+npm run build:ios        # Build iOS IPA for sharing
+npm run build:all        # Build for both platforms
+npm run build:dev        # Development builds with Expo Dev Client
 ```
 
 ## Architecture
 
+### Modular Component Structure
+The codebase follows a highly modular architecture with centralized exports:
+
+**Component Organization:**
+- `components/ui/` - Core reusable UI library with centralized index export
+- `components/home/` - HomeScreen-specific components (HomeHeader, ActionCardPair)
+- `components/booking/` - BookingScreen components (ParallaxHeader, DateSelector, TimeSlotGrid)
+- `components/profile/` - ProfileScreen components (ProfileHeader, ProfileInfo)
+
+**Constants & Utilities:**
+- `constants/` - Centralized theme, navigation routes, assets, and booking data
+- `hooks/` - Custom hooks (useHeaderTap, useParallax, useTabAnimation)
+- `utils/` - Utility functions for dimensions and responsive design
+
 ### Navigation Structure
-- **AppNavigator**: Root stack navigator with slide-right transitions
-- **TabNavigator**: Bottom tab navigation for main screens (Home, Community, Profile)
-- **Main Screens**: HomeScreen, BookingScreen, ProfileScreen, CommunityScreen
-- **Hidden Screen**: ComponentsLibrary (accessed via 5-tap gesture on home title)
+- **AppNavigator**: Root stack navigator with slide-right transitions using centralized ROUTES constants
+- **TabNavigator**: Bottom tab navigation with dynamic icon configuration
+- **Route Management**: All route names defined in `constants/navigation.js` as ROUTES object
 
-### Component System
-The app uses a comprehensive reusable component library located in `components/ui/`:
-
-**Core Components:**
-- `Button` - Primary, secondary, icon, outline variants
-- `Chip` - Active/inactive states with optional badges  
-- `Avatar` - Single avatars and avatar pairs with status indicators
-- `Badge` - Level badges, status indicators, win badges
-- `Card` - ActionCard, MatchCard, PersonCard, ClubCard, StatCard, RankingCard
-- `ProgressBar` - Customizable progress indicators
-- `TabNavigation` - Animated tab navigation with sliding underline
-
-**Import Pattern:**
+### Component Import Patterns
 ```javascript
+// UI Components
 import { Button, Chip, Avatar, Badge } from '../components/ui';
+
+// Screen-specific components
+import { HomeHeader, ActionCardPair } from '../components/home';
+import { ParallaxHeader, DateSelector } from '../components/booking';
+import { ProfileHeader, ProfileInfo } from '../components/profile';
+
+// Constants and utilities
+import { colors, spacing, typography, ROUTES } from '../constants';
+import { useParallax, useHeaderTap } from '../hooks';
 ```
 
-### Screen Patterns
-- **HomeScreen**: Action cards for court booking and match finding
-- **BookingScreen**: Animated parallax header, sliding tab navigation, time slot selection
-- **ProfileScreen**: Comprehensive user profile with stats, level tracking, social features
-- **ComponentsLibrary**: Developer reference showing all UI components
+### Styling System
+- **Theme Constants**: Centralized color palette, spacing scale, and typography in `constants/theme.js`
+- **NativeWind Integration**: Tailwind CSS classes for React Native
+- **Responsive Design**: Utility functions in `utils/dimensions.js` for screen adaptation
+- **Component Styles**: Dedicated style files for complex components (e.g., `components/booking/styles.js`)
 
-### Styling Guidelines
-- Use NativeWind (Tailwind CSS for React Native) for styling
-- Custom component library handles most UI patterns
-- Prefer reusable components over inline styles
-- Russian localization throughout the app
+### State Management Patterns
+- **Custom Hooks**: Extracted complex state logic (parallax animations, tab transitions)
+- **Component Composition**: Large screens broken into smaller, focused components
+- **Props Interface**: Clean prop passing between parent and child components
 
-### Development Server
-- Default port: 8082 (configured in metro.config.js and package.json)
-- Metro bundler with NativeWind integration
-- Expo development workflow
+### Asset Management
+- **Centralized Assets**: All image imports in `constants/assets.js`
+- **Organized Structure**: Icons, court images, and app assets properly categorized
+
+### Build Configuration
+- **EAS Integration**: Configured for Expo Application Services builds
+- **Multi-profile Setup**: Development, preview, and production build profiles
+- **Cross-platform**: Optimized for both iOS and Android distribution
 
 ### Hidden Features
 - **Components Library Access**: Tap the home screen title 5 times to open the hidden ComponentsLibrary screen for UI component reference
 
-### File Organization
-```
-screens/           # Main application screens
-navigation/        # Navigation configuration
-components/
-  ui/             # Reusable UI component library
-  ComponentsLibrary.js  # Hidden developer reference
-assets/           # Local images and icons
-```
-
 ## Development Guidelines
-- Do what has been asked; nothing more, nothing less
-- NEVER create files unless they're absolutely necessary for achieving your goal
-- ALWAYS prefer editing an existing file to creating a new one
-- NEVER proactively create documentation files (*.md) or README files unless explicitly requested
 - Use existing UI components from `components/ui/` before creating new ones
+- Import constants from centralized locations rather than hardcoding values
+- Follow the established component composition patterns for new screens
 - Maintain Russian localization for user-facing text
+- Prefer editing existing files over creating new ones unless absolutely necessary
