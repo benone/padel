@@ -109,8 +109,13 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   slotSelected: { backgroundColor: '#1f2937' },
+  slotDisabled: { backgroundColor: '#f3f4f6', opacity: 0.5 },
   slotText: { fontSize: 14, fontWeight: '500', color: '#1f2937' },
   slotTextSelected: { color: '#ffffff' },
+  slotTextDisabled: { color: '#9ca3af' },
+  slotSubText: { fontSize: 10, color: '#6b7280', marginTop: 2 },
+  slotSubTextSelected: { color: '#d1d5db' },
+  slotSubTextDisabled: { color: '#9ca3af' },
 
   /* Alerts */
   alertRow: {

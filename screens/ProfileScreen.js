@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
   Text,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { 
@@ -17,16 +18,57 @@ import {
   TabNavigation 
 } from '../components/ui';
 import { ProfileHeader, ProfileInfo, styles } from '../components/profile';
+import { usersAPI, authAPI } from '../services/api';
 
-export default function ProfileScreen({ navigation }) {
+export default function ProfileScreen({ navigation, route }) {
   const [activeTab, setActiveTab] = useState('activities');
+  const [userProfile, setUserProfile] = useState(null);
+  const [userStats, setUserStats] = useState(null);
+  const [connections, setConnections] = useState([]);
+  const [clubs, setClubs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    loadProfileData();
+  }, [route?.params?.userId]); // Reload when userId changes
+
+  const loadProfileData = async () => {
+    try {
+      setLoading(true);
+      
+      // Get user ID from route params or current user
+      let targetUserId = route?.params?.userId;
+      if (!targetUserId) {
+        const currentUser = await authAPI.getCurrentUser();
+        if (!currentUser) return;
+        targetUserId = currentUser.id;
+      }
+      
+      // Load all profile data for the target user
+      const [profileRes, statsRes, connectionsRes, clubsRes] = await Promise.all([
+        usersAPI.getProfile(targetUserId),
+        usersAPI.getStats(targetUserId),
+        usersAPI.getConnections(targetUserId),
+        usersAPI.getClubs(targetUserId)
+      ]);
+      
+      setUserProfile(profileRes.data);
+      setUserStats(statsRes.data);
+      setConnections(connectionsRes.data);
+      setClubs(clubsRes.data);
+    } catch (error) {
+      console.error('Failed to load profile data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.root}>
       <ProfileHeader navigation={navigation} />
 
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <ProfileInfo />
+        <ProfileInfo userProfile={userProfile} />
 
         <TabNavigation
           tabs={[
@@ -37,8 +79,20 @@ export default function ProfileScreen({ navigation }) {
           onTabChange={setActiveTab}
         />
 
-        {activeTab === 'activities' && (
-          <ActivitiesTab />
+        {loading && (
+          <View style={{ padding: 40, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#3b82f6" />
+            <Text style={{ marginTop: 10, color: '#6b7280' }}>Загрузка профиля...</Text>
+          </View>
+        )}
+
+        {!loading && activeTab === 'activities' && (
+          <ActivitiesTab 
+            userProfile={userProfile}
+            userStats={userStats}
+            connections={connections}
+            clubs={clubs}
+          />
         )}
 
         {activeTab === 'posts' && (
@@ -49,7 +103,7 @@ export default function ProfileScreen({ navigation }) {
   );
 }
 
-function ActivitiesTab() {
+function ActivitiesTab({ userProfile, userStats, connections, clubs }) {
   return (
     <View>
       <View style={styles.sportsFilter}>
@@ -58,14 +112,14 @@ function ActivitiesTab() {
         <Chip label="Пиклбол" active={false} onPress={() => {}} />
       </View>
 
-      <LevelCard />
-      <LevelProgressSection />
-      <PlayerPreferencesSection />
-      <RecentMatchesSection />
-      <StatisticsSection />
-      <PeopleSection />
-      <ClubsSection />
-      <RankingsSection />
+      <LevelCard userProfile={userProfile} />
+      <LevelProgressSection userStats={userStats} />
+      <PlayerPreferencesSection userProfile={userProfile} />
+      <RecentMatchesSection userStats={userStats} />
+      <StatisticsSection userProfile={userProfile} userStats={userStats} />
+      <PeopleSection connections={connections} />
+      <ClubsSection clubs={clubs} userProfile={userProfile} />
+      <RankingsSection userProfile={userProfile} />
     </View>
   );
 }
@@ -79,23 +133,29 @@ function PostsTab() {
   );
 }
 
-function LevelCard() {
+function LevelCard({ userProfile }) {
+  if (!userProfile) return null;
+  
+  const level = userProfile.level || 0;
+  const reliability = userProfile.stats?.winRate || 0;
+  const levelName = userProfile.levelName || 'Начинающий';
+  
   return (
     <View style={styles.levelCard}>
       <View style={styles.levelHeader}>
         <View>
           <Text style={styles.levelLabel}>🏆 Текущий уровень</Text>
-          <Text style={styles.levelNumber}>0.69</Text>
+          <Text style={styles.levelNumber}>{level.toFixed(1)}</Text>
         </View>
         <View style={styles.reliabilityBadge}>
-          <Text style={styles.reliabilityText}>СРЕДНИЙ</Text>
+          <Text style={styles.reliabilityText}>{levelName.toUpperCase()}</Text>
         </View>
       </View>
       <View style={styles.progressContainer}>
         <ProgressBar 
-          percentage={64.84} 
+          percentage={reliability} 
           showLabel={true}
-          label="Надежность уровня: 64.84%"
+          label={`Надежность уровня: ${reliability}%`}
         />
       </View>
     </View>
@@ -146,11 +206,13 @@ function LevelChart() {
   );
 }
 
-function PlayerPreferencesSection() {
+function PlayerPreferencesSection({ userProfile }) {
+  if (!userProfile?.preferences) return null;
+  
   const preferences = [
-    { icon: '👋', label: 'Лучшая рука', value: 'Правша' },
-    { icon: '📍', label: 'Позиция на корте', value: 'Обе стороны' },
-    { icon: '🌅', label: 'Предпочитаемое время игры', value: 'Вечером' },
+    { icon: '👋', label: 'Лучшая рука', value: userProfile.preferences.hand || 'Не указано' },
+    { icon: '📍', label: 'Позиция на корте', value: userProfile.preferences.position || 'Не указано' },
+    { icon: '🌅', label: 'Предпочитаемое время игры', value: userProfile.preferences.preferredTime || 'Не указано' },
   ];
 
   return (
@@ -180,28 +242,33 @@ function RecentMatchesSection() {
   );
 }
 
-function StatisticsSection() {
+function StatisticsSection({ userProfile, userStats }) {
+  if (!userProfile?.stats) return null;
+  
+  const stats = userProfile.stats;
+  const effectiveness = userStats?.overview?.winRate || stats.winRate || 0;
+  
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Статистика</Text>
       
       <View style={styles.statsGrid}>
-        <StatCard number="37" label="Всего" />
-        <StatCard number="12" label="Выиграно" color="#10b981" />
+        <StatCard number={stats.totalMatches?.toString() || "0"} label="Всего" />
+        <StatCard number={stats.wins?.toString() || "0"} label="Выиграно" color="#10b981" />
         <StatCard number="10" label="Последние" />
-        <StatCard number="4" label="Выиграно" color="#10b981" />
+        <StatCard number={stats.wins && stats.totalMatches ? Math.min(stats.wins, 10).toString() : "0"} label="Выиграно" color="#10b981" />
       </View>
       
       <View style={styles.effectivenessCard}>
         <View style={styles.effectivenessIcon}>
           <Ionicons name="analytics" size={32} color="#3b82f6" />
         </View>
-        <Text style={styles.effectivenessNumber}>40%</Text>
+        <Text style={styles.effectivenessNumber}>{effectiveness}%</Text>
         <Text style={styles.effectivenessLabel}>Эффективность</Text>
         <Text style={styles.effectivenessSubLabel}>Последние 10</Text>
         <View style={styles.effectivenessProgress}>
           <ProgressBar 
-            percentage={40} 
+            percentage={effectiveness} 
             color="#3b82f6"
             backgroundColor="#f3f4f6"
             height={8}
@@ -212,68 +279,59 @@ function StatisticsSection() {
   );
 }
 
-function PeopleSection() {
+function PeopleSection({ connections }) {
+  if (!connections || connections.length === 0) return null;
+  
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Люди, которые играли больше всего с этим пользователем</Text>
       
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.peopleScroll}>
-        <PersonCard
-          initials="AC"
-          name="Александр К."
-          level="0.95"
-          matches="19"
-          onPress={() => {}}
-        />
-        <PersonCard
-          avatar="https://images.unsplash.com/photo-1494790108755-2616c5fab5e7?w=200&h=200&fit=crop&crop=face"
-          name="Мария Вос"
-          level="1.38"
-          matches="5"
-          onPress={() => {}}
-        />
-        <PersonCard
-          avatar="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face"
-          name="Сергей"
-          level="0.84"
-          matches="4"
-          onPress={() => {}}
-        />
+        {connections.map((person) => (
+          <PersonCard
+            key={person.id}
+            avatar={person.avatar}
+            initials={person.name.split(' ').map(n => n[0]).join('')}
+            name={person.name}
+            level={person.level?.toFixed(1) || '0.0'}
+            matches={person.matchesPlayed?.toString() || '0'}
+            onPress={() => {}}
+          />
+        ))}
       </ScrollView>
     </View>
   );
 }
 
-function ClubsSection() {
+function ClubsSection({ clubs, userProfile }) {
+  if (!clubs || clubs.length === 0) return null;
+  
+  const userName = userProfile?.name || 'пользователя';
+  
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Клубы, где играет Александра</Text>
+      <Text style={styles.sectionTitle}>Клубы, где играет {userName}</Text>
       
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.clubsScroll}>
-        <ClubCard
-          image="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=300&h=200&fit=crop"
-          name="Падел Центр СУМА"
-          location="Пушкин"
-          onPress={() => {}}
-        />
-        <ClubCard
-          image="https://images.unsplash.com/photo-1544966503-7fdb27fca2d8?w=300&h=200&fit=crop"
-          name="Падел Арена"
-          location="Васильевский остров"
-          onPress={() => {}}
-        />
-        <ClubCard
-          image="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop"
-          name="Fair Play"
-          location="Санкт-Петербург"
-          onPress={() => {}}
-        />
+        {clubs.map((club, index) => (
+          <ClubCard
+            key={club.id || index}
+            image="http://localhost:3000/api/static-images/club-facility-1"
+            name={club.name}
+            location={club.location || 'Москва'}
+            onPress={() => {}}
+          />
+        ))}
       </ScrollView>
     </View>
   );
 }
 
-function RankingsSection() {
+function RankingsSection({ userProfile }) {
+  if (!userProfile) return null;
+  
+  const level = userProfile.level || 0;
+  
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Рейтинги</Text>
@@ -281,12 +339,12 @@ function RankingsSection() {
       <View style={styles.rankingsContainer}>
         <RankingCard
           title="Рейтинг падел уровня"
-          value="#0.69"
+          value={`#${level.toFixed(2)}`}
           unit="LvL"
         />
         <RankingCard
           title="Глобальный рейтинг падел"
-          value="#3,154.74"
+          value={`#${(level * 1000 + Math.random() * 500).toFixed(0)}`}
         />
       </View>
     </View>

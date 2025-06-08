@@ -40,11 +40,7 @@ export const styles = StyleSheet.create({
     elevation: 10,
   },
   avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 4,
-    borderColor: 'rgba(255,255,255,0.3)',
+    // Avatar component will handle its own styling
   },
   statusDot: {
     position: 'absolute',

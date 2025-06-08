@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Switch,
   Animated,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { 
@@ -19,12 +20,21 @@ import {
 import { useParallax } from '../hooks/useParallax';
 import { useTabAnimation } from '../hooks/useTabAnimation';
 import { TABS } from '../constants/booking';
+import { clubsAPI, bookingsAPI } from '../services/api';
 
-export default function BookingScreen({ navigation }) {
+export default function BookingScreen({ navigation, route }) {
   const [showAvailableOnly, setShowAvailableOnly] = useState(true);
   const [selectedDate, setSelectedDate] = useState(9);
   const [selectedTime, setSelectedTime] = useState('10:00');
   const [activeTab, setActiveTab] = useState(TABS.RESERVE);
+  
+  // API data states
+  const [clubData, setClubData] = useState(null);
+  const [availability, setAvailability] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
+  // Get club ID from route params or use default
+  const clubId = route?.params?.clubId || 'club_123';
   
   const {
     scrollY,
@@ -35,6 +45,79 @@ export default function BookingScreen({ navigation }) {
   } = useParallax();
   
   const { underlinePosition } = useTabAnimation(activeTab);
+
+  // Load club data on mount
+  useEffect(() => {
+    loadClubData();
+  }, [clubId]);
+
+  // Load availability when date changes
+  useEffect(() => {
+    if (clubData && selectedDate) {
+      loadAvailability();
+    }
+  }, [clubData, selectedDate]);
+
+  const loadClubData = async () => {
+    try {
+      setLoading(true);
+      const response = await clubsAPI.getDetails(clubId);
+      setClubData(response.data);
+    } catch (error) {
+      console.error('Failed to load club data:', error);
+      Alert.alert('Ошибка', 'Не удалось загрузить информацию о клубе');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadAvailability = async () => {
+    try {
+      const date = new Date();
+      date.setDate(date.getDate() + selectedDate - new Date().getDate());
+      const dateStr = date.toISOString().split('T')[0];
+      
+      const response = await clubsAPI.getAvailability(clubId, {
+        date: dateStr,
+        sport: 'padel'
+      });
+      setAvailability(response.data.timeSlots || []);
+    } catch (error) {
+      console.error('Failed to load availability:', error);
+    }
+  };
+
+  const handleBooking = async (timeSlot, courtId) => {
+    try {
+      const date = new Date();
+      date.setDate(date.getDate() + selectedDate - new Date().getDate());
+      const dateStr = date.toISOString().split('T')[0];
+
+      const bookingData = {
+        clubId,
+        courtId,
+        date: dateStr,
+        time: timeSlot,
+        duration: 90,
+        sport: 'padel',
+        totalPrice: 3000
+      };
+
+      setLoading(true);
+      const response = await bookingsAPI.create(bookingData);
+      
+      Alert.alert(
+        'Успешно!', 
+        `Бронирование подтверждено. Код: ${response.data.confirmationCode}`,
+        [{ text: 'OK', onPress: () => navigation.goBack() }]
+      );
+    } catch (error) {
+      console.error('Booking failed:', error);
+      Alert.alert('Ошибка', 'Не удалось создать бронирование');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.root}>
@@ -47,7 +130,7 @@ export default function BookingScreen({ navigation }) {
       />
 
       <View style={styles.panel}>
-        <ClubHeader />
+        <ClubHeader clubData={clubData} />
         <TabNavigation
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -67,7 +150,7 @@ export default function BookingScreen({ navigation }) {
           overScrollMode="never"
         >
           {activeTab === TABS.HOME && (
-            <ClubInformationTab />
+            <ClubInformationTab clubData={clubData} />
           )}
 
           {activeTab === TABS.RESERVE && (
@@ -78,6 +161,9 @@ export default function BookingScreen({ navigation }) {
               setSelectedTime={setSelectedTime}
               showAvailableOnly={showAvailableOnly}
               setShowAvailableOnly={setShowAvailableOnly}
+              availability={availability}
+              onBooking={handleBooking}
+              loading={loading}
             />
           )}
 
@@ -94,7 +180,17 @@ export default function BookingScreen({ navigation }) {
   );
 }
 
-function ClubInformationTab() {
+function ClubInformationTab({ clubData }) {
+  if (!clubData) {
+    return (
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Загрузка...</Text>
+      </View>
+    );
+  }
+
+  const padelSport = clubData.sports?.find(s => s.name === 'Падел');
+  
   return (
     <View>
       <View style={styles.section}>
@@ -107,21 +203,29 @@ function ClubInformationTab() {
           <Text style={styles.sportText}>Падел</Text>
         </View>
 
-        <Text style={styles.courtsText}>3 доступных корта</Text>
+        <Text style={styles.courtsText}>
+          {padelSport?.courts || 0} доступн{padelSport?.courts === 1 ? 'ый корт' : 'ых корта'}
+        </Text>
 
         <View style={styles.amenitiesRow}>
-          <View style={styles.amenityChip}>
-            <Ionicons name="accessibility-outline" size={18} color="#4b5563" />
-            <Text style={styles.amenityText}>Спец. доступ</Text>
-          </View>
-          <View style={styles.amenityChip}>
-            <Ionicons name="car-outline" size={18} color="#4b5563" />
-            <Text style={styles.amenityText}>Бесплатная парковка</Text>
-          </View>
-          <View style={styles.amenityChip}>
-            <Ionicons name="cafe-outline" size={18} color="#4b5563" />
-            <Text style={styles.amenityText}>Кафе</Text>
-          </View>
+          {clubData.amenities?.wheelchairAccessible && (
+            <View style={styles.amenityChip}>
+              <Ionicons name="accessibility-outline" size={18} color="#4b5563" />
+              <Text style={styles.amenityText}>Спец. доступ</Text>
+            </View>
+          )}
+          {clubData.amenities?.parking && (
+            <View style={styles.amenityChip}>
+              <Ionicons name="car-outline" size={18} color="#4b5563" />
+              <Text style={styles.amenityText}>Бесплатная парковка</Text>
+            </View>
+          )}
+          {clubData.amenities?.cafe && (
+            <View style={styles.amenityChip}>
+              <Ionicons name="cafe-outline" size={18} color="#4b5563" />
+              <Text style={styles.amenityText}>Кафе</Text>
+            </View>
+          )}
         </View>
       </View>
 
@@ -133,26 +237,32 @@ function ClubInformationTab() {
           <Text style={styles.actionText}>МАРШРУТ</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionBtn}>
-          <View style={styles.actionBtnOutline}>
-            <Ionicons name="link-outline" size={24} color="#1f2937" />
-          </View>
-          <Text style={styles.actionText}>ВЕБ</Text>
-        </TouchableOpacity>
+        {clubData.contact?.website && (
+          <TouchableOpacity style={styles.actionBtn}>
+            <View style={styles.actionBtnOutline}>
+              <Ionicons name="link-outline" size={24} color="#1f2937" />
+            </View>
+            <Text style={styles.actionText}>ВЕБ</Text>
+          </TouchableOpacity>
+        )}
 
-        <TouchableOpacity style={styles.actionBtn}>
-          <View style={styles.actionBtnOutline}>
-            <Ionicons name="call-outline" size={24} color="#1f2937" />
-          </View>
-          <Text style={styles.actionText}>ПОЗВОНИТЬ</Text>
-        </TouchableOpacity>
+        {clubData.contact?.phone && (
+          <TouchableOpacity style={styles.actionBtn}>
+            <View style={styles.actionBtnOutline}>
+              <Ionicons name="call-outline" size={24} color="#1f2937" />
+            </View>
+            <Text style={styles.actionText}>ПОЗВОНИТЬ</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <TouchableOpacity style={styles.mapContainer}>
         <View style={styles.mapPlaceholder}>
           <Ionicons name="map-outline" size={48} color="#6b7280" />
           <Text style={styles.mapText}>Посмотреть на карте</Text>
-          <Text style={styles.mapSubText}>п. Нагорный, ул. Дачная, 25</Text>
+          <Text style={styles.mapSubText}>
+            {clubData.address?.street}, {clubData.address?.city}
+          </Text>
         </View>
       </TouchableOpacity>
     </View>
@@ -165,8 +275,23 @@ function ReservationTab({
   selectedTime, 
   setSelectedTime, 
   showAvailableOnly, 
-  setShowAvailableOnly 
+  setShowAvailableOnly,
+  availability,
+  onBooking,
+  loading
 }) {
+  const handleTimeSlotPress = (timeSlot, courtId) => {
+    setSelectedTime(timeSlot);
+    Alert.alert(
+      'Подтвердить бронирование',
+      `Забронировать корт на ${timeSlot}?`,
+      [
+        { text: 'Отмена', style: 'cancel' },
+        { text: 'Забронировать', onPress: () => onBooking(timeSlot, courtId) }
+      ]
+    );
+  };
+
   return (
     <View>
       <DateSelector selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
@@ -183,7 +308,14 @@ function ReservationTab({
         />
       </View>
 
-      <TimeSlotGrid selectedTime={selectedTime} setSelectedTime={setSelectedTime} />
+      <TimeSlotGrid 
+        selectedTime={selectedTime} 
+        setSelectedTime={setSelectedTime}
+        availability={availability}
+        showAvailableOnly={showAvailableOnly}
+        onTimeSlotPress={handleTimeSlotPress}
+        loading={loading}
+      />
 
       <TouchableOpacity style={styles.alertRow}>
         <Ionicons name="notifications-outline" size={20} color="#1f2937" style={{ marginRight: 12 }} />

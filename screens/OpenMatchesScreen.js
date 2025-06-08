@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -7,10 +7,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  ActivityIndicator,
+  Alert,
+  RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Chip, Avatar, Badge, Button } from '../components/ui';
 import VenueSelectionModal from './VenueSelectionModal';
+import { matchesAPI, clubsAPI, authAPI } from '../services/api';
 
 export default function OpenMatchesScreen({ navigation }) {
   const [selectedSport, setSelectedSport] = useState('Падел');
@@ -18,141 +22,184 @@ export default function OpenMatchesScreen({ navigation }) {
   const [selectedDate, setSelectedDate] = useState('Сб-Вс-Пн, 07');
   const [showVenueModal, setShowVenueModal] = useState(false);
 
-  const matches = [
-    {
-      id: 1,
-      date: 'Воскресенье, 8 июня',
-      time: '09:00',
-      type: 'Соревновательный',
-      levelRange: '0.49 - 1.49',
-      players: [
-        { name: 'Анна', level: '0.74', initials: 'А', avatar: null },
-        { name: 'Доступно', level: null, initials: null, avatar: null, available: true },
-        { name: 'Дмитрий', level: '0.85', initials: 'Д', avatar: null },
-        { name: 'Доступно', level: null, initials: null, avatar: null, available: true },
-      ],
-      club: {
-        name: 'Спортивный клуб "Чемпион"',
-        distance: '3км',
-        location: 'Москва',
-        icon: '🏟️'
-      },
-      price: '₽450',
-      duration: '90мин'
-    },
-    {
-      id: 2,
-      date: 'Понедельник, 9 июня',
-      time: '09:30',
-      type: 'Соревновательный',
-      levelRange: '0.44 - 1.44',
-      players: [
-        { 
-          name: 'Елена', 
-          level: '0.69', 
-          initials: 'Е', 
-          avatar: 'https://images.unsplash.com/photo-1494790108755-2616c5fab5e7?w=200&h=200&fit=crop&crop=face'
-        },
-        { name: 'Доступно', level: null, initials: null, avatar: null, available: true },
-        { name: 'Доступно', level: null, initials: null, avatar: null, available: true },
-        { name: 'Доступно', level: null, initials: null, avatar: null, available: true },
-      ],
-      club: {
-        name: 'Центр тенниса "Олимп"',
-        distance: '5км',
-        location: 'Санкт-Петербург',
-        icon: '🏟️'
-      },
-      price: '₽350',
-      duration: '90мин'
-    },
-    {
-      id: 3,
-      date: 'Понедельник, 9 июня',
-      time: '10:30',
-      type: 'Соревновательный',
-      levelRange: '0.79 - 1.79',
-      players: [
-        { name: 'Михаил', level: '1.12', initials: 'М', avatar: null },
-        { name: 'Доступно', level: null, initials: null, avatar: null, available: true },
-        { name: 'София', level: '0.95', initials: 'С', avatar: null },
-        { name: 'Доступно', level: null, initials: null, avatar: null, available: true },
-      ],
-      club: {
-        name: 'Теннисный клуб "Энергия"',
-        distance: '7км',
-        location: 'Казань',
-        icon: '🏟️'
-      },
-      price: '₽520',
-      duration: '90мин'
+  // API data states
+  const [matches, setMatches] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    loadCurrentUser();
+    loadMatches();
+  }, [selectedSport]);
+
+  const loadCurrentUser = async () => {
+    try {
+      const user = await authAPI.getCurrentUser();
+      setCurrentUser(user);
+    } catch (error) {
+      console.warn('Failed to load current user:', error);
     }
-  ];
+  };
 
-  const renderMatch = (match) => (
-    <TouchableOpacity 
-      key={match.id}
-      style={styles.matchCard}
-      onPress={() => navigation.navigate('MatchDetails', { match })}
-    >
-      <View style={styles.matchHeader}>
-        <Text style={styles.matchDate}>{match.date} | {match.time}</Text>
-      </View>
-      
-      <View style={styles.matchInfo}>
-        <View style={styles.matchTypeContainer}>
-          <Ionicons name="trophy-outline" size={16} color="#6b7280" />
-          <Text style={styles.matchType}>{match.type}</Text>
-        </View>
-        <View style={styles.levelContainer}>
-          <Ionicons name="bar-chart-outline" size={16} color="#6b7280" />
-          <Text style={styles.levelRange}>{match.levelRange}</Text>
-        </View>
-      </View>
+  const loadMatches = async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
 
-      <View style={styles.playersContainer}>
-        {match.players.map((player, index) => (
-          <View key={index} style={styles.playerSlot}>
-            {player.available ? (
-              <View style={styles.availableSlot}>
-                <View style={styles.plusIcon}>
-                  <Text style={styles.plusText}>+</Text>
-                </View>
-                <Text style={styles.availableText}>Доступно</Text>
+      const response = await matchesAPI.getOpen({
+        sport: selectedSport.toLowerCase(),
+        limit: 20
+      });
+
+      setMatches(response.data.matches || []);
+    } catch (error) {
+      console.error('Failed to load matches:', error);
+      Alert.alert('Ошибка', 'Не удалось загрузить матчи');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const handleJoinMatch = async (matchId) => {
+    try {
+      Alert.alert(
+        'Присоединиться к матчу',
+        'Отправить заявку на участие в этом матче?',
+        [
+          { text: 'Отмена', style: 'cancel' },
+          {
+            text: 'Присоединиться',
+            onPress: async () => {
+              try {
+                const response = await matchesAPI.join(matchId, 'Хочу присоединиться к вашему матчу!');
+                Alert.alert('Успешно!', response.data.message);
+                loadMatches(); // Refresh matches
+              } catch (error) {
+                Alert.alert('Ошибка', 'Не удалось присоединиться к матчу');
+              }
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      console.error('Failed to join match:', error);
+    }
+  };
+
+  const renderMatch = (match) => {
+    const matchDate = new Date(match.date);
+    const formattedDate = matchDate.toLocaleDateString('ru-RU', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    });
+    const formattedTime = matchDate.toLocaleTimeString('ru-RU', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    const levelRange = `${match.levelRange[0]} - ${match.levelRange[1]}`;
+    const competitiveText = match.competitive ? 'Соревновательный' : 'Дружеский';
+
+    return (
+      <TouchableOpacity
+        key={match.id}
+        style={styles.matchCard}
+        onPress={() => navigation.navigate('MatchDetails', { matchId: match.id })}
+      >
+        <View style={styles.matchHeader}>
+          <Text style={styles.matchDate}>{formattedDate} | {formattedTime}</Text>
+        </View>
+
+        <View style={styles.matchInfo}>
+          <View style={styles.matchTypeContainer}>
+            <Ionicons name="trophy-outline" size={16} color="#6b7280" />
+            <Text style={styles.matchType}>{competitiveText}</Text>
+          </View>
+          <View style={styles.levelContainer}>
+            <Ionicons name="bar-chart-outline" size={16} color="#6b7280" />
+            <Text style={styles.levelRange}>{levelRange}</Text>
+          </View>
+        </View>
+
+        <View style={styles.playersContainer}>
+          {match.players.map((player, index) => {
+            const isCurrentUser = currentUser && (player.id === currentUser.id || player.isCurrentUser);
+            const isWaiting = player.status === 'waiting' || player.waiting;
+
+            return (
+              <View key={index} style={styles.playerSlot}>
+                <TouchableOpacity
+                  style={styles.playerInfo}
+                  onPress={() => navigation.navigate('Profile', { userId: player.id })}
+                >
+                  <Avatar
+                    uri={player.avatar}
+                    initials={player.name ? player.name.charAt(0) : '?'}
+                    size="large"
+                  />
+                  <View style={styles.playerNameContainer}>
+                    <Text style={styles.playerName}>{player.name}</Text>
+                    {isCurrentUser && <Text style={styles.playerYouLabel}>(Вы)</Text>}
+                  </View>
+                  {isWaiting ? (
+                    <View style={styles.waitingContainer}>
+                      <Text style={styles.waitingText}>Ожидание</Text>
+                      <Text style={styles.waitingIcon}>⏳</Text>
+                    </View>
+                  ) : (
+                    <Badge text={player.level?.toFixed(2) || '0.00'} type="level" size="small" />
+                  )}
+                </TouchableOpacity>
               </View>
-            ) : (
-              <TouchableOpacity 
-                style={styles.playerInfo}
-                onPress={() => navigation.navigate('Profile')}
-              >
-                <Avatar
-                  uri={player.avatar}
-                  initials={player.initials}
-                  size="medium"
-                />
-                <Text style={styles.playerName}>{player.name}</Text>
-                <Badge text={player.level} type="level" size="small" />
-              </TouchableOpacity>
-            )}
-          </View>
-        ))}
-      </View>
+            );
+          })}
 
-      <View style={styles.clubInfo}>
-        <View style={styles.clubDetails}>
-          <Text style={styles.clubIcon}>{match.club.icon}</Text>
-          <View>
-            <Text style={styles.clubName}>{match.club.name}</Text>
-            <Text style={styles.clubLocation}>{match.club.distance} • {match.club.location}</Text>
+          {/* Show available spots */}
+          {Array.from({ length: match.playersNeeded }, (_, index) => {
+            const isLastSlot = index === match.playersNeeded - 1 && match.playersNeeded === 1;
+
+            return (
+              <View key={`available-${index}`} style={styles.playerSlot}>
+                <TouchableOpacity
+                  style={styles.availableSlot}
+                  onPress={() => handleJoinMatch(match.id)}
+                >
+                  <View style={styles.plusIcon}>
+                    <Text style={styles.plusText}>+</Text>
+                  </View>
+                  <Text style={[styles.availableText, isLastSlot && styles.editText]}>
+                    {isLastSlot ? 'Изменить' : 'Доступно'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            );
+          })}
+        </View>
+
+        <View style={styles.clubInfo}>
+          <View style={styles.clubDetails}>
+            <Text style={styles.clubIcon}>🏟️</Text>
+            <View>
+              <Text style={styles.clubName}>{match.club?.name || 'Клуб'}</Text>
+              <Text style={styles.clubLocation}>
+                {match.club?.distance ? `${match.club.distance}км` : ''} • {match.club?.address || 'Адрес'}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.matchMeta}>
+            <Text style={styles.matchPrice}>₽{match.price || '0'}</Text>
+            <Text style={styles.matchDuration}>{match.duration || 90}мин</Text>
           </View>
         </View>
-        <View style={styles.matchMeta}>
-          <Text style={styles.matchPrice}>{match.price}</Text>
-          <Text style={styles.matchDuration}>{match.duration}</Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -171,28 +218,39 @@ export default function OpenMatchesScreen({ navigation }) {
           <Ionicons name="options-outline" size={20} color="#6b7280" />
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersScroll}>
-          <Chip 
-            label={selectedSport} 
-            active={true} 
-            onPress={() => {}} 
+          <Chip
+            label={selectedSport}
+            active={true}
+            onPress={() => {}}
             style={styles.filterChip}
           />
-          <Chip 
-            label={selectedClubs} 
-            active={true} 
-            onPress={() => {}} 
+          <Chip
+            label={selectedClubs}
+            active={true}
+            onPress={() => {}}
             style={styles.filterChip}
           />
-          <Chip 
-            label={selectedDate} 
-            active={true} 
-            onPress={() => {}} 
+          <Chip
+            label={selectedDate}
+            active={true}
+            onPress={() => {}}
             style={styles.filterChip}
           />
         </ScrollView>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => loadMatches(true)}
+            colors={['#3b82f6']}
+            tintColor="#3b82f6"
+          />
+        }
+      >
         {/* Section Header */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Для вашего уровня</Text>
@@ -201,7 +259,23 @@ export default function OpenMatchesScreen({ navigation }) {
 
         {/* Matches List */}
         <View style={styles.matchesList}>
-          {matches.map(renderMatch)}
+          {loading && (
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <ActivityIndicator size="large" color="#3b82f6" />
+              <Text style={{ marginTop: 10, color: '#6b7280' }}>Загрузка матчей...</Text>
+            </View>
+          )}
+
+          {!loading && matches.length === 0 && (
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, color: '#6b7280', marginBottom: 8 }}>Нет доступных матчей</Text>
+              <Text style={{ color: '#9ca3af', textAlign: 'center' }}>
+                Попробуйте изменить фильтры или создать новый матч
+              </Text>
+            </View>
+          )}
+
+          {!loading && matches.map(renderMatch)}
         </View>
 
         {/* Start a Match Button */}
@@ -215,7 +289,7 @@ export default function OpenMatchesScreen({ navigation }) {
           />
         </View>
       </ScrollView>
-      
+
       <VenueSelectionModal
         visible={showVenueModal}
         onClose={() => setShowVenueModal(false)}
@@ -248,7 +322,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1f2937',
   },
-  
+
   // Filters
   filtersContainer: {
     flexDirection: 'row',
@@ -268,7 +342,7 @@ const styles = StyleSheet.create({
   filterChip: {
     marginRight: 8,
   },
-  
+
   content: {
     flex: 1,
   },
@@ -287,7 +361,7 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     lineHeight: 20,
   },
-  
+
   // Matches
   matchesList: {
     paddingHorizontal: 16,
@@ -335,13 +409,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6b7280',
   },
-  
+
   // Players
   playersContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 16,
-    gap: 8,
+    gap: 16,
   },
   playerSlot: {
     flex: 1,
@@ -349,21 +423,42 @@ const styles = StyleSheet.create({
   },
   playerInfo: {
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
+  },
+  playerNameContainer: {
+    alignItems: 'center',
   },
   playerName: {
     fontSize: 14,
     fontWeight: '500',
     color: '#1f2937',
   },
+  playerYouLabel: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  waitingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
+  },
+  waitingText: {
+    fontSize: 12,
+    color: '#6b7280',
+  },
+  waitingIcon: {
+    fontSize: 12,
+  },
   availableSlot: {
     alignItems: 'center',
     gap: 6,
   },
   plusIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     borderWidth: 2,
     borderColor: '#3b82f6',
     backgroundColor: 'white',
@@ -371,7 +466,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   plusText: {
-    fontSize: 24,
+    fontSize: 32,
     color: '#3b82f6',
     fontWeight: '300',
   },
@@ -380,7 +475,10 @@ const styles = StyleSheet.create({
     color: '#3b82f6',
     fontWeight: '500',
   },
-  
+  editText: {
+    color: '#3b82f6',
+  },
+
   // Club
   clubInfo: {
     flexDirection: 'row',
@@ -422,7 +520,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#3b82f6',
   },
-  
+
   // Start Match
   startMatchContainer: {
     paddingHorizontal: 16,

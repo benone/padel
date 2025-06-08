@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -7,85 +7,111 @@ import {
   TouchableOpacity,
   StyleSheet,
   ImageBackground,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Avatar, Badge, Button } from '../components/ui';
+import { matchesAPI, authAPI } from '../services/api';
 
 export default function MatchDetailsScreen({ navigation, route }) {
-  const { match } = route.params || {};
-  const [currentUser] = useState({
-    name: 'Кирилл (Вы)',
-    level: '=',
-    initials: 'К',
-    status: 'Ожидание'
-  });
+  const { matchId } = route.params || {};
+  const [matchData, setMatchData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
 
-  // Sample match data if none provided
-  const matchData = match || {
-    date: 'Воскресенье, 8 июня',
-    time: '09:00 - 10:30',
-    type: 'Соревновательный',
-    levelRange: '0.49-1.49',
-    gender: 'Все игроки',
-    price: '₽450',
-    players: [
-      { name: 'Анна', level: '0.74', initials: 'А' },
-      { name: 'Кирилл (Вы)', level: '=', initials: 'К', isCurrentUser: true },
-      { name: 'Дмитрий', level: '0.85', initials: 'Д' },
-      { name: 'Доступно', available: true }
-    ],
-    club: {
-      name: 'Спортивный клуб "Чемпион"',
-      location: 'Москва'
+  useEffect(() => {
+    loadMatchDetails();
+    loadCurrentUser();
+  }, [matchId]);
+
+  const loadCurrentUser = async () => {
+    try {
+      const user = await authAPI.getCurrentUser();
+      setCurrentUser(user);
+    } catch (error) {
+      console.warn('Failed to load current user:', error);
     }
   };
 
-  const renderPlayer = (player, index) => (
-    <View key={index} style={styles.playerContainer}>
-      {player.available ? (
-        <View style={styles.availablePlayerSlot}>
-          <View style={styles.changeButton}>
-            <Text style={styles.changeButtonText}>+</Text>
-          </View>
-          <Text style={styles.changeText}>Изменить</Text>
+  const loadMatchDetails = async () => {
+    try {
+      setLoading(true);
+      const response = await matchesAPI.getDetails(matchId);
+      setMatchData(response.data);
+    } catch (error) {
+      console.error('Failed to load match details:', error);
+      // Fallback to sample data if API fails
+      setMatchData({
+        date: 'Воскресенье, 8 июня',
+        time: '09:00 - 10:30',
+        type: 'Соревновательный',
+        levelRange: '0.49-1.49',
+        gender: 'Все игроки',
+        price: '₽450',
+        players: [
+          { name: 'Анна', level: '0.74', initials: 'А' },
+          { name: 'Кирилл', level: '=', initials: 'К', isCurrentUser: true },
+          { name: 'Дмитрий', level: '0.85', initials: 'Д' },
+          { name: 'Доступно', available: true }
+        ],
+        club: {
+          name: 'Спортивный клуб "Чемпион"',
+          location: 'Москва'
+        }
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading || !matchData) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#3b82f6" />
         </View>
-      ) : (
+      </SafeAreaView>
+    );
+  }
+
+  const renderPlayer = (player, index) => {
+    const isCurrentUser = currentUser && (player.id === currentUser.id || player.isCurrentUser);
+    const isWaiting = player.status === 'waiting' || player.waiting;
+    
+    return (
+      <View key={index} style={styles.playerSlot}>
         <TouchableOpacity 
           style={styles.playerInfo}
-          onPress={() => !player.isCurrentUser && navigation.navigate('Profile')}
-          disabled={player.isCurrentUser}
+          onPress={() => !isCurrentUser && navigation.navigate('Profile', { userId: player.id })}
+          disabled={isCurrentUser}
         >
           <Avatar
-            initials={player.initials}
+            uri={player.avatar}
+            initials={player.name ? player.name.charAt(0) : '?'}
             size="large"
-            style={player.isCurrentUser && styles.currentUserAvatar}
           />
-          <Text style={[
-            styles.playerName,
-            player.isCurrentUser && styles.currentUserName
-          ]}>
-            {player.name}
-          </Text>
-          {player.level !== '=' && (
-            <Badge text={player.level} type="level" size="medium" />
-          )}
-          {player.isCurrentUser && (
-            <View style={styles.pendingContainer}>
-              <Text style={styles.pendingText}>Ожидание</Text>
-              <Ionicons name="hourglass-outline" size={16} color="#6b7280" />
+          <View style={styles.playerNameContainer}>
+            <Text style={styles.playerName}>{player.name}</Text>
+            {isCurrentUser && <Text style={styles.playerYouLabel}>(Вы)</Text>}
+          </View>
+          {isWaiting ? (
+            <View style={styles.waitingContainer}>
+              <Text style={styles.waitingText}>Ожидание</Text>
+              <Text style={styles.waitingIcon}>⏳</Text>
             </View>
+          ) : (
+            <Badge text={player.level?.toFixed(2) || '0.00'} type="level" size="small" />
           )}
         </TouchableOpacity>
-      )}
-      {index < 3 && <View style={styles.playerDivider} />}
-    </View>
-  );
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header with Background */}
       <ImageBackground
-        source={{ uri: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=300&fit=crop' }}
+        source={{ uri: 'http://localhost:3000/api/static-images/court-background-1' }}
         style={styles.headerBackground}
         imageStyle={styles.headerBackgroundImage}
       >
@@ -117,23 +143,34 @@ export default function MatchDetailsScreen({ navigation, route }) {
               <Ionicons name="tennisball-outline" size={24} color="#1f2937" />
             </View>
             <View style={styles.matchInfoDetails}>
-              <Text style={styles.sportTitle}>ПАДЕЛ</Text>
-              <Text style={styles.matchDateTime}>{matchData.date} {matchData.time}</Text>
+              <Text style={styles.sportTitle}>{matchData.sport || 'ПАДЕЛ'}</Text>
+              <Text style={styles.matchDateTime}>
+                {matchData.date ? new Date(matchData.date).toLocaleDateString('ru-RU', {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long'
+                }) : ''} {matchData.date ? new Date(matchData.date).toLocaleTimeString('ru-RU', {
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }) : ''}
+              </Text>
             </View>
           </View>
 
           <View style={styles.matchInfoGrid}>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Пол</Text>
-              <Text style={styles.infoValue}>{matchData.gender}</Text>
+              <Text style={styles.infoValue}>{matchData.genderPreference === 'mixed' ? 'Все игроки' : matchData.genderPreference || 'Все игроки'}</Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Уровень</Text>
-              <Text style={styles.infoValue}>{matchData.levelRange}</Text>
+              <Text style={styles.infoValue}>
+                {matchData.levelRange ? `${matchData.levelRange[0]} - ${matchData.levelRange[1]}` : '0.0 - 10.0'}
+              </Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Цена</Text>
-              <Text style={styles.infoValue}>{matchData.price}</Text>
+              <Text style={styles.infoValue}>₽{matchData.price || '0'}</Text>
             </View>
           </View>
         </View>
@@ -152,9 +189,9 @@ export default function MatchDetailsScreen({ navigation, route }) {
 
         {/* Match Type Info */}
         <View style={styles.competitiveCard}>
-          <Text style={styles.competitiveTitle}>Соревновательный</Text>
+          <Text style={styles.competitiveTitle}>{matchData.competitive ? 'Соревновательный' : 'Дружеский'}</Text>
           <Text style={styles.competitiveDescription}>
-            Результат этого матча будет засчитан в уровень
+            {matchData.competitive ? 'Результат этого матча будет засчитан в уровень' : 'Результат этого матча не влияет на ваш уровень'}
           </Text>
         </View>
 
@@ -162,7 +199,20 @@ export default function MatchDetailsScreen({ navigation, route }) {
         <View style={styles.playersSection}>
           <Text style={styles.sectionTitle}>Игроки</Text>
           <View style={styles.playersGrid}>
-            {matchData.players.map(renderPlayer)}
+            {matchData.players && matchData.players.map(renderPlayer)}
+            {matchData.playersNeeded && Array.from({ length: matchData.playersNeeded }, (_, index) => (
+              <View key={`available-${index}`} style={styles.playerSlot}>
+                <TouchableOpacity 
+                  style={styles.availableSlot}
+                  onPress={() => {}}
+                >
+                  <View style={styles.plusIcon}>
+                    <Text style={styles.plusText}>+</Text>
+                  </View>
+                  <Text style={styles.availableText}>Доступно</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
           </View>
         </View>
 
@@ -381,43 +431,47 @@ const styles = StyleSheet.create({
   playersGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 16,
   },
-  playerContainer: {
+  playerSlot: {
     flex: 1,
     alignItems: 'center',
-    position: 'relative',
   },
   playerInfo: {
     alignItems: 'center',
-    gap: 8,
+    gap: 4,
+  },
+  playerNameContainer: {
+    alignItems: 'center',
   },
   playerName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '500',
     color: '#1f2937',
-    textAlign: 'center',
   },
-  currentUserName: {
+  playerYouLabel: {
+    fontSize: 12,
     color: '#6b7280',
+    marginTop: 2,
   },
-  currentUserAvatar: {
-    opacity: 0.7,
-  },
-  pendingContainer: {
+  waitingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     marginTop: 4,
   },
-  pendingText: {
+  waitingText: {
     fontSize: 12,
     color: '#6b7280',
   },
-  availablePlayerSlot: {
-    alignItems: 'center',
-    gap: 8,
+  waitingIcon: {
+    fontSize: 12,
   },
-  changeButton: {
+  availableSlot: {
+    alignItems: 'center',
+    gap: 6,
+  },
+  plusIcon: {
     width: 80,
     height: 80,
     borderRadius: 40,
@@ -427,24 +481,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  changeButtonText: {
+  plusText: {
     fontSize: 32,
     color: '#3b82f6',
     fontWeight: '300',
   },
-  changeText: {
-    fontSize: 16,
+  availableText: {
+    fontSize: 14,
     color: '#3b82f6',
-    fontWeight: '600',
-  },
-  playerDivider: {
-    position: 'absolute',
-    right: -20,
-    top: '50%',
-    width: 1,
-    height: 60,
-    backgroundColor: '#e5e7eb',
-    transform: [{ translateY: -30 }],
+    fontWeight: '500',
   },
   
   // Teams

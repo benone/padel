@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Image, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Avatar({ 
   uri, 
@@ -8,6 +9,7 @@ export default function Avatar({
   borderColor = 'white',
   showStatus = false,
   online = false,
+  showDefaultIcon = false,
   style = {},
   ...props 
 }) {
@@ -79,16 +81,49 @@ export default function Avatar({
     color: 'white',
   };
 
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(!!uri);
+
+  const handleImageError = () => {
+    setImageError(true);
+    setImageLoading(false);
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
+  };
+
+  const shouldShowImage = uri && !imageError;
+  const shouldShowIcon = showDefaultIcon && !shouldShowImage && !initials;
+
   return (
     <View style={[styles.container, style]} {...props}>
-      {uri ? (
-        <Image source={{ uri }} style={avatarStyle} />
+      {shouldShowImage ? (
+        <Image 
+          source={{ uri }} 
+          style={avatarStyle}
+          onError={handleImageError}
+          onLoad={handleImageLoad}
+        />
+      ) : shouldShowIcon ? (
+        <View style={initialsStyle}>
+          <Ionicons 
+            name="person" 
+            size={fontSize} 
+            color="#9ca3af" 
+          />
+        </View>
       ) : (
         <View style={initialsStyle}>
           <Text style={initialsTextStyle}>{initials || '?'}</Text>
         </View>
       )}
       {showStatus && <View style={statusStyle} />}
+      {imageLoading && shouldShowImage && (
+        <View style={[initialsStyle, { position: 'absolute' }]}>
+          <Text style={[initialsTextStyle, { fontSize: fontSize * 0.7 }]}>...</Text>
+        </View>
+      )}
     </View>
   );
 }

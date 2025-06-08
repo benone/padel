@@ -165,7 +165,7 @@ export default function ComponentsLibrary({ navigation }) {
                 <View style={styles.matchPlayersRow}>
                   <View style={styles.playerInfoSection}>
                     <View style={styles.playerAvatarContainer}>
-                      <Image source={{ uri: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face' }} style={styles.matchPlayerAvatar} />
+                      <Image source={{ uri: 'http://localhost:3000/api/static-images/profile-female-1' }} style={styles.matchPlayerAvatar} />
                       <View style={styles.onlineIndicator} />
                     </View>
                     <View style={styles.playerDetails}>
@@ -197,7 +197,7 @@ export default function ComponentsLibrary({ navigation }) {
               <Text style={styles.componentLabel}>Карта клуба</Text>
               <View style={styles.clubCard}>
                 <Image 
-                  source={{ uri: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=300&h=200&fit=crop' }}
+                  source={{ uri: 'http://localhost:3000/api/static-images/club-facility-2' }}
                   style={styles.clubImage}
                 />
                 <Text style={styles.clubName}>SUMA Pádel</Text>
