@@ -1,7 +1,6 @@
 // API Configuration and Service Layer
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '@env';
-import configAPI from './configAPI';
 
 // API Configuration
 const API_CONFIG = {
@@ -425,5 +424,3 @@ const initializeAuth = async () => {
 // Initialize auth and config on module load
 initializeAuth();
 
-// Export config API alongside other APIs
-export { configAPI };

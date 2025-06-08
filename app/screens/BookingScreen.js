@@ -20,7 +20,7 @@ import {
 import { useParallax } from '../hooks/useParallax';
 import { useTabAnimation } from '../hooks/useTabAnimation';
 import { TABS } from '../constants/booking';
-import { clubsAPI, bookingsAPI, configAPI } from '../services/api';
+import { clubsAPI, bookingsAPI } from '../services/api';
 
 export default function BookingScreen({ navigation, route }) {
   const [showAvailableOnly, setShowAvailableOnly] = useState(true);
@@ -47,26 +47,26 @@ export default function BookingScreen({ navigation, route }) {
   
   const { underlinePosition } = useTabAnimation(activeTab);
 
-  // Load club data and config on mount
+  // Load club data on mount
   useEffect(() => {
     loadClubData();
-    loadBookingConfig();
+    // Set hardcoded booking config
+    setBookingConfig({
+      defaultDuration: 90,
+      durations: [
+        { value: 60, label: '60мин', price: 2000 },
+        { value: 90, label: '90мин', price: 3000 },
+        { value: 120, label: '120мин', price: 4000 }
+      ],
+      timeSlots: ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'],
+      genderOptions: [
+        { id: 'mixed', label: 'Все игроки' },
+        { id: 'male', label: 'Только мужчины' },
+        { id: 'female', label: 'Только женщины' }
+      ],
+      defaultPrice: 3000
+    });
   }, [clubId]);
-
-  const loadBookingConfig = async () => {
-    try {
-      console.log(`⚙️ BookingScreen: Loading booking configuration`);
-      const config = await configAPI.getBookingConfig();
-      console.log(`✅ BookingScreen: Booking config loaded:`, config);
-      setBookingConfig(config);
-    } catch (error) {
-      console.error('❌ BookingScreen: Failed to load booking config:', error);
-      console.error('❌ BookingScreen: Config error details:', {
-        message: error.message,
-        stack: error.stack
-      });
-    }
-  };
 
   // Load availability when date changes
   useEffect(() => {

@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Chip, Avatar } from '../components/ui';
-import { configAPI } from '../services/api';
 
 export default function NewMatchScreen({ navigation, route }) {
   const { venueType } = route.params || {};
@@ -23,60 +22,13 @@ export default function NewMatchScreen({ navigation, route }) {
   const [selectedGender, setSelectedGender] = useState('Все игроки');
   const [selectedLevel, setSelectedLevel] = useState('0.49 - 1.49');
 
-  // Configuration from API
-  const [sports, setSports] = useState([]);
-  const [playerOptions, setPlayerOptions] = useState([2, 3, 4]);
-  const [timeSlots, setTimeSlots] = useState(['09:00', '10:00', '11:00', '12:00']);
-  const [durations, setDurations] = useState(['60мин', '90мин', '120мин']);
-  const [genderOptions, setGenderOptions] = useState(['Все игроки', 'Только мужчины', 'Только женщины']);
-  const [levelOptions, setLevelOptions] = useState(['0.49 - 1.49', '1.50 - 2.49', '2.50 - 3.49']);
-
-  // Load configuration on mount
-  useEffect(() => {
-    loadConfiguration();
-  }, []);
-
-  const loadConfiguration = async () => {
-    try {
-      const [sportsConfig, bookingConfig] = await Promise.all([
-        configAPI.getSportsConfig(),
-        configAPI.getBookingConfig()
-      ]);
-
-      if (sportsConfig?.length > 0) {
-        setSports(sportsConfig);
-        // Set default sport to first active sport
-        const defaultSport = sportsConfig.find(s => s.active) || sportsConfig[0];
-        setSelectedSport(defaultSport.name);
-        
-        // Set player options from selected sport
-        if (defaultSport.playerCounts) {
-          setPlayerOptions(defaultSport.playerCounts);
-        }
-      }
-
-      if (bookingConfig) {
-        if (bookingConfig.timeSlots) {
-          setTimeSlots(bookingConfig.timeSlots);
-        }
-        if (bookingConfig.durations) {
-          setDurations(bookingConfig.durations.map(d => d.label));
-        }
-        if (bookingConfig.genderOptions) {
-          setGenderOptions(bookingConfig.genderOptions.map(g => g.label));
-        }
-      }
-
-      // Load level options from sports config
-      const activeSport = sportsConfig?.find(s => s.active);
-      if (activeSport?.levelRanges) {
-        setLevelOptions(activeSport.levelRanges.map(l => l.label));
-        setSelectedLevel(activeSport.levelRanges[0]?.label || '0.49 - 1.49');
-      }
-    } catch (error) {
-      console.error('Failed to load configuration:', error);
-    }
-  };
+  // Hardcoded configuration
+  const sports = ['Падел'];
+  const playerOptions = [2, 4];
+  const timeSlots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
+  const durations = ['60мин', '90мин', '120мин'];
+  const genderOptions = ['Все игроки', 'Только мужчины', 'Только женщины'];
+  const levelOptions = ['0.49 - 1.49', '1.50 - 2.49', '2.50 - 3.49'];
 
   const renderPlayerSlots = () => {
     const slots = [];
