@@ -249,7 +249,7 @@ const matches = [
     organizer: {
       id: "user_456",
       name: "Алексей Петров",
-      avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=50&height=50",
+      avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100",
       level: 7.2,
       matchesPlayed: 43,
       rating: 4.9
@@ -258,7 +258,7 @@ const matches = [
       {
         id: "user_456",
         name: "Алексей Петров",
-        avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=50&height=50",
+        avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100",
         level: 7.2,
         confirmed: true,
         role: "organizer"
@@ -310,7 +310,7 @@ const matches = [
     organizer: {
       id: "user_102",
       name: "Дмитрий Козлов",
-      avatar: "http://localhost:3000/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=50&height=50",
+      avatar: "http://localhost:3000/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100",
       level: 8.1
     },
     players: [
@@ -554,7 +554,7 @@ const generateMatchHistory = (userId, limit = 10) => {
         {
           id: "user_456",
           name: "Алексей Петров",
-          avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=50&height=50",
+          avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100",
           level: 7.0
         }
       ],
@@ -562,13 +562,13 @@ const generateMatchHistory = (userId, limit = 10) => {
         {
           id: "user_789",
           name: "Михаил Иванов",
-          avatar: "http://localhost:3000/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=50&height=50",
+          avatar: "http://localhost:3000/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100",
           level: 6.5
         },
         {
           id: "user_101",
           name: "Дмитрий Сидоров",
-          avatar: "http://localhost:3000/api/images-simple/generate?prompt=padel%20tennis%20player%20athlete%20male%20headshot%20portrait&width=50&height=50",
+          avatar: "http://localhost:3000/api/images-simple/generate?prompt=padel%20tennis%20player%20athlete%20male%20headshot%20portrait&width=100&height=100",
           level: 7.2
         }
       ]
@@ -607,14 +607,14 @@ const generateUserStats = (userId, period = '6months') => {
       {
         id: "user_456",
         name: "Алексей Петров",
-        avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=50&height=50",
+        avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100",
         matchesPlayed: 12,
         winRate: 75
       },
       {
         id: "user_789",
         name: "Игорь Волков",
-        avatar: "http://localhost:3000/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=50&height=50",
+        avatar: "http://localhost:3000/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100",
         matchesPlayed: 8,
         winRate: 62
       }
