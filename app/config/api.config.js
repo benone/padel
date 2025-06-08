@@ -3,21 +3,16 @@ import { API_BASE_URL } from '@env';
 
 // Base URL for API calls - uses environment variable or defaults to worker
 const getBaseUrl = () => {
-  if (API_BASE_URL) {
-    return API_BASE_URL.replace('/api', '');
-  }
-  
-  // Default to Cloudflare Worker
-  return 'https://padel-app-backend.hi-sender.workers.dev';
+  // In production builds, API_BASE_URL from .env may be undefined
+  // Always fallback to Cloudflare Worker for reliability
+  const url = API_BASE_URL || 'https://padel-app-backend.hi-sender.workers.dev/api';
+  return url.replace('/api', '');
 };
 
 const getApiUrl = () => {
-  if (API_BASE_URL) {
-    return API_BASE_URL;
-  }
-  
-  // Default to Cloudflare Worker
-  return 'https://padel-app-backend.hi-sender.workers.dev/api';
+  // In production builds, API_BASE_URL from .env may be undefined
+  // Always fallback to Cloudflare Worker for reliability
+  return API_BASE_URL || 'https://padel-app-backend.hi-sender.workers.dev/api';
 };
 
 export const BASE_URL = getBaseUrl();

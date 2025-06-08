@@ -4,7 +4,7 @@ import { API_BASE_URL } from '@env';
 
 // API Configuration
 const API_CONFIG = {
-  baseURL: API_BASE_URL,
+  baseURL: API_BASE_URL || 'https://padel-app-backend.hi-sender.workers.dev/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -13,6 +13,8 @@ const API_CONFIG = {
 
 // Debug log the API URL being used
 console.log('🔧 API Config: Using', API_CONFIG.baseURL);
+console.log('🔧 Environment API_BASE_URL:', API_BASE_URL);
+console.log('🔧 Is production build:', !__DEV__);
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -98,6 +100,13 @@ class ApiClient {
         throw new Error('Request timeout');
       }
       console.error(`API Error [${config.method} ${url}]:`, error);
+      console.error('Network details:', {
+        url,
+        method: config.method,
+        headers: config.headers,
+        timeout: this.timeout,
+        isProduction: !__DEV__
+      });
       throw error;
     }
   }
