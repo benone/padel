@@ -1,6 +1,9 @@
 // Mock data for Cloudflare Workers
 // Using static IDs instead of uuid for Workers compatibility
 
+// Mock data factory function that accepts base URL
+export function createMockData(baseUrl) {
+
 // Mock Users Data
 const users = [
   {
@@ -8,7 +11,7 @@ const users = [
     email: "kirill.romanov@example.com",
     phone: "+7 (999) 123-45-67",
     name: "Кирилл Романов",
-    avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20businessman%20headshot%20portrait&width=100&height=100",
+    avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20businessman%20headshot%20portrait&width=100&height=100`,
     level: 7.5,
     levelName: "Продвинутый",
     location: {
@@ -42,7 +45,7 @@ const users = [
     email: "alexey.petrov@example.com",
     phone: "+7 (999) 234-56-78",
     name: "Алексей Петров",
-    avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100",
+    avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
     level: 7.2,
     levelName: "Продвинутый",
     location: {
@@ -128,8 +131,8 @@ const clubs = [
       website: "https://olimp-club.ru"
     },
     images: [
-      "http://localhost:3000/api/static-images/court-background-1",
-      "http://localhost:3000/api/static-images/court-background-2"
+      `${baseUrl}/api/static-images/court-background-1`,
+      `${baseUrl}/api/static-images/court-background-2`
     ],
     sports: [
       {
@@ -185,7 +188,7 @@ const clubs = [
       website: "https://sport-arena.ru"
     },
     images: [
-      "http://localhost:3000/api/static-images/club-facility-1"
+      `${baseUrl}/api/static-images/club-facility-1`
     ],
     sports: [
       {
@@ -250,7 +253,7 @@ const matches = [
     organizer: {
       id: "user_456",
       name: "Алексей Петров",
-      avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100",
+      avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
       level: 7.2,
       matchesPlayed: 43,
       rating: 4.9
@@ -259,7 +262,7 @@ const matches = [
       {
         id: "user_456",
         name: "Алексей Петров",
-        avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100",
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
         level: 7.2,
         confirmed: true,
         role: "organizer"
@@ -311,7 +314,7 @@ const matches = [
     organizer: {
       id: "user_102",
       name: "Дмитрий Козлов",
-      avatar: "http://localhost:3000/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100",
+      avatar: `${baseUrl}/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100`,
       level: 8.1
     },
     players: [
@@ -333,7 +336,7 @@ users.push({
   email: "test@example.com",
   phone: "+7 (999) 000-00-00",
   name: "", // Empty name
-  avatar: "http://localhost:3000/api/images-simple/generate?prompt=young%20athlete%20beginner%20headshot%20portrait&width=100&height=100", // AI generated test user
+  avatar: `${baseUrl}/api/images-simple/generate?prompt=young%20athlete%20beginner%20headshot%20portrait&width=100&height=100`, // AI generated test user
   level: 5.0,
   levelName: "Начинающий",
   location: {
@@ -369,7 +372,7 @@ users.push({
   email: "dmitry.kozlov@example.com",
   phone: "+7 (999) 555-12-34",
   name: "Дмитрий Козлов",
-  avatar: "http://localhost:3000/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100",
+  avatar: `${baseUrl}/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100`,
   level: 8.1,
   levelName: "Эксперт",
   location: {
@@ -538,9 +541,9 @@ const generateMatchHistory = (userId, limit = 10) => {
   for (let i = 0; i < limit; i++) {
     const date = new Date();
     date.setDate(date.getDate() - Math.floor(Math.random() * 30));
-    
+
     matches.push({
-      id: `match_${uuidv4()}`,
+      id: `match_${Date.now()}_${i}`,
       date: date.toISOString(),
       sport: "Падел",
       duration: 90,
@@ -555,7 +558,7 @@ const generateMatchHistory = (userId, limit = 10) => {
         {
           id: "user_456",
           name: "Алексей Петров",
-          avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100",
+          avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
           level: 7.0
         }
       ],
@@ -563,13 +566,13 @@ const generateMatchHistory = (userId, limit = 10) => {
         {
           id: "user_789",
           name: "Михаил Иванов",
-          avatar: "http://localhost:3000/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100",
+          avatar: `${baseUrl}/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100`,
           level: 6.5
         },
         {
           id: "user_101",
           name: "Дмитрий Сидоров",
-          avatar: "http://localhost:3000/api/images-simple/generate?prompt=padel%20tennis%20player%20athlete%20male%20headshot%20portrait&width=100&height=100",
+          avatar: `${baseUrl}/api/images-simple/generate?prompt=padel%20tennis%20player%20athlete%20male%20headshot%20portrait&width=100&height=100`,
           level: 7.2
         }
       ]
@@ -608,14 +611,14 @@ const generateUserStats = (userId, period = '6months') => {
       {
         id: "user_456",
         name: "Алексей Петров",
-        avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100",
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
         matchesPlayed: 12,
         winRate: 75
       },
       {
         id: "user_789",
         name: "Игорь Волков",
-        avatar: "http://localhost:3000/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100",
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100`,
         matchesPlayed: 8,
         winRate: 62
       }
@@ -623,14 +626,18 @@ const generateUserStats = (userId, period = '6months') => {
   };
 };
 
-export const mockData = {
-  users,
-  clubs,
-  matches,
-  bookings,
-  sports,
-  timeSlots,
-  generateCourtAvailability,
-  generateMatchHistory,
-  generateUserStats
-};
+  return {
+    users,
+    clubs,
+    matches,
+    bookings,
+    sports,
+    timeSlots,
+    generateCourtAvailability,
+    generateMatchHistory,
+    generateUserStats
+  };
+}
+
+// Default export for Node.js environments
+export const mockData = createMockData();

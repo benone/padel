@@ -1,4 +1,5 @@
 const express = require('express');
+const { BASE_URL } = require('../config/api.config.js');
 const router = express.Router();
 const { clubs, generateCourtAvailability } = require('../data/mockData');
 const { sendSuccess, sendError, simulateDelay } = require('../utils/responseHelper');
@@ -154,7 +155,7 @@ router.get('/:clubId/reviews', async (req, res) => {
         user: {
           id: 'user_456',
           name: 'Алексей П.',
-          avatar: 'http://localhost:3000/api/images-simple/generate?prompt=professional%20padel%20player%20male%20reviewer%20headshot%20portrait&width=50&height=50'
+          avatar: '${BASE_URL}/api/images-simple/generate?prompt=professional%20padel%20player%20male%20reviewer%20headshot%20portrait&width=50&height=50'
         },
         rating: 5,
         comment: 'Отличный клуб! Корты в прекрасном состоянии, персонал дружелюбный.',
@@ -166,7 +167,7 @@ router.get('/:clubId/reviews', async (req, res) => {
         user: {
           id: 'user_789',
           name: 'Мария И.',
-          avatar: 'http://localhost:3000/api/images-simple/generate?prompt=professional%20female%20padel%20player%20reviewer%20headshot%20portrait&width=50&height=50'
+          avatar: '${BASE_URL}/api/images-simple/generate?prompt=professional%20female%20padel%20player%20reviewer%20headshot%20portrait&width=50&height=50'
         },
         rating: 4,
         comment: 'Хорошие корты, но парковка иногда переполнена в выходные.',

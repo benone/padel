@@ -5,14 +5,14 @@ import { API_BASE_URL } from '@env';
 const getBaseUrl = () => {
   // In production builds, API_BASE_URL from .env may be undefined
   // Always fallback to Cloudflare Worker for reliability
-  const url = API_BASE_URL || 'https://padel-app-backend.hi-sender.workers.dev/api';
+  const url = API_BASE_URL;
   return url.replace('/api', '');
 };
 
 const getApiUrl = () => {
   // In production builds, API_BASE_URL from .env may be undefined
   // Always fallback to Cloudflare Worker for reliability
-  return API_BASE_URL || 'https://padel-app-backend.hi-sender.workers.dev/api';
+  return API_BASE_URL;
 };
 
 export const BASE_URL = getBaseUrl();

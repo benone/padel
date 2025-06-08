@@ -1,10 +1,11 @@
 // API Configuration and Service Layer
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '@env';
+import configAPI from './configAPI';
 
 // API Configuration
 const API_CONFIG = {
-  baseURL: API_BASE_URL || 'https://padel-app-backend.hi-sender.workers.dev/api',
+  baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -57,7 +58,7 @@ class ApiClient {
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
     const token = await this.getAuthToken();
-    
+
     const headers = {
       ...this.defaultHeaders,
       ...(options.headers || {}),
@@ -77,6 +78,8 @@ class ApiClient {
       config.body = JSON.stringify(config.body);
     }
 
+    console.log(`🌐 API Request: ${config.method} ${url}`);
+
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
@@ -87,6 +90,7 @@ class ApiClient {
       });
 
       clearTimeout(timeoutId);
+      console.log(`📡 API Response: ${response.status} for ${config.method} ${url}`);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -94,17 +98,22 @@ class ApiClient {
       }
 
       const data = await response.json();
+      console.log(`✅ API Success: ${config.method} ${url}`, data);
       return data;
     } catch (error) {
       if (error.name === 'AbortError') {
+        console.error(`⏰ API Timeout: ${config.method} ${url} (${this.timeout}ms)`);
         throw new Error('Request timeout');
       }
-      console.error(`API Error [${config.method} ${url}]:`, error);
-      console.error('Network details:', {
+      console.error(`❌ API Error [${config.method} ${url}]:`, error);
+      console.error(`❌ API Error type:`, error.constructor.name);
+      console.error(`❌ API Error message:`, error.message);
+      console.error('❌ Network details:', {
         url,
         method: config.method,
         headers: config.headers,
         timeout: this.timeout,
+        baseURL: this.baseURL,
         isProduction: !__DEV__
       });
       throw error;
@@ -383,15 +392,15 @@ const supportAPI = {
 };
 
 // Export all APIs
-export { 
-  authAPI, 
-  usersAPI, 
-  clubsAPI, 
-  matchesAPI, 
-  bookingsAPI, 
-  generalAPI, 
-  paymentsAPI, 
-  notificationsAPI, 
+export {
+  authAPI,
+  usersAPI,
+  clubsAPI,
+  matchesAPI,
+  bookingsAPI,
+  generalAPI,
+  paymentsAPI,
+  notificationsAPI,
   supportAPI,
   apiClient,
   initializeAuth
@@ -412,3 +421,9 @@ const initializeAuth = async () => {
     console.warn('Auto-login failed:', error);
   }
 };
+
+// Initialize auth and config on module load
+initializeAuth();
+
+// Export config API alongside other APIs
+export { configAPI };

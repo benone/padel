@@ -1,4 +1,5 @@
 const express = require('express');
+const { BASE_URL } = require('../config/api.config.js');
 const fs = require('fs-extra');
 const path = require('path');
 const crypto = require('crypto');
@@ -120,7 +121,7 @@ router.get('/generate', async (req, res) => {
     console.log(`🎨 Mock generating image for prompt: "${prompt}"`);
 
     // Use a fixed sample image URL for testing (avoiding random to help with caching)
-    const imageUrl = `http://localhost:3000/api/images-simple/generate?prompt=modern%20padel%20court%20sports%20facility&width=${width}&height=${height}`;
+    const imageUrl = `${BASE_URL}/api/images-simple/generate?prompt=modern%20padel%20court%20sports%20facility&width=${width}&height=${height}`;
 
     // Cache the metadata
     const cacheData = {

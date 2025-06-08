@@ -1,4 +1,5 @@
 const express = require('express');
+const { BASE_URL } = require('../config/api.config.js');
 const router = express.Router();
 const { users, generateMatchHistory, generateUserStats } = require('../data/mockData');
 const { authenticateToken } = require('../middleware/auth');
@@ -153,7 +154,7 @@ router.get('/:userId/connections', async (req, res) => {
       {
         id: "user_456",
         name: "Алексей Петров",
-        avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20padel%20player%20male%20connection%20headshot%20portrait&width=50&height=50",
+        avatar: "${BASE_URL}/api/images-simple/generate?prompt=professional%20padel%20player%20male%20connection%20headshot%20portrait&width=50&height=50",
         level: 7.2,
         matchesPlayed: 12,
         winRate: 75,
@@ -162,7 +163,7 @@ router.get('/:userId/connections', async (req, res) => {
       {
         id: "user_789",
         name: "Мария Иванова",
-        avatar: "http://localhost:3000/api/images-simple/generate?prompt=professional%20female%20padel%20player%20connection%20headshot%20portrait&width=50&height=50",
+        avatar: "${BASE_URL}/api/images-simple/generate?prompt=professional%20female%20padel%20player%20connection%20headshot%20portrait&width=50&height=50",
         level: 6.8,
         matchesPlayed: 8,
         winRate: 62,

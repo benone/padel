@@ -1,6 +1,9 @@
 // Cloudflare Worker entry point
 import { Router } from 'itty-router';
-import { mockData } from './data/mockData.mjs';
+import { createMockData } from './data/mockData.mjs';
+
+// Cache mock data to avoid recreating on each request
+let cachedMockData = null;
 
 const router = Router();
 
@@ -142,25 +145,29 @@ router.get('/api/users/profile', async (request) => {
     return sendError('Unauthorized', 401);
   }
   
-  const userProfile = mockData.users.find(u => u.id === user.id) || mockData.users[0];
+  if (!cachedMockData) cachedMockData = createMockData('');
+  const userProfile = cachedMockData.users.find(u => u.id === user.id) || cachedMockData.users[0];
   return sendSuccess(userProfile, 'User profile retrieved successfully');
 });
 
 router.get('/api/users/:userId', async (request) => {
   const { userId } = request.params;
-  const userProfile = mockData.users.find(u => u.id === userId) || mockData.users[0];
+  if (!cachedMockData) cachedMockData = createMockData('');
+  const userProfile = cachedMockData.users.find(u => u.id === userId) || cachedMockData.users[0];
   return sendSuccess(userProfile, 'User profile retrieved successfully');
 });
 
 router.get('/api/users/:userId/profile', async (request) => {
   const { userId } = request.params;
-  const userProfile = mockData.users.find(u => u.id === userId) || mockData.users[0];
+  if (!cachedMockData) cachedMockData = createMockData('');
+  const userProfile = cachedMockData.users.find(u => u.id === userId) || cachedMockData.users[0];
   return sendSuccess(userProfile, 'User profile retrieved successfully');
 });
 
 router.get('/api/users/:userId/stats', async (request) => {
   const { userId } = request.params;
-  const userStats = mockData.generateUserStats(userId);
+  if (!cachedMockData) cachedMockData = createMockData('');
+  const userStats = cachedMockData.generateUserStats(userId);
   return sendSuccess(userStats, 'User stats retrieved successfully');
 });
 
@@ -192,7 +199,8 @@ router.get('/api/users/:userId/clubs', async (request) => {
   const { userId } = request.params;
   
   // Return subset of clubs as user's clubs
-  const userClubs = mockData.clubs.slice(0, 2);
+  if (!cachedMockData) cachedMockData = createMockData('');
+  const userClubs = cachedMockData.clubs.slice(0, 2);
   
   return sendSuccess(userClubs, 'User clubs retrieved successfully');
 });
@@ -205,7 +213,8 @@ router.get('/api/clubs', async (request) => {
   const limit = parseInt(url.searchParams.get('limit') || '10');
   const offset = parseInt(url.searchParams.get('offset') || '0');
   
-  let filteredClubs = [...mockData.clubs];
+  if (!cachedMockData) cachedMockData = createMockData('');
+  let filteredClubs = [...cachedMockData.clubs];
   
   if (city) {
     filteredClubs = filteredClubs.filter(club => 
@@ -232,7 +241,8 @@ router.get('/api/clubs', async (request) => {
 
 router.get('/api/clubs/:clubId', async (request) => {
   const { clubId } = request.params;
-  const club = mockData.clubs.find(c => c.id === clubId);
+  if (!cachedMockData) cachedMockData = createMockData('');
+  const club = cachedMockData.clubs.find(c => c.id === clubId);
   
   if (!club) {
     return sendError('Club not found', 404);
@@ -248,7 +258,8 @@ router.get('/api/clubs/:clubId/availability', async (request) => {
   const date = url.searchParams.get('date');
   const sport = url.searchParams.get('sport') || 'padel';
   
-  const club = mockData.clubs.find(c => c.id === clubId);
+  if (!cachedMockData) cachedMockData = createMockData('');
+  const club = cachedMockData.clubs.find(c => c.id === clubId);
   if (!club) {
     return sendError('Club not found', 404);
   }
@@ -257,7 +268,7 @@ router.get('/api/clubs/:clubId/availability', async (request) => {
     return sendError('Date parameter is required', 400);
   }
   
-  const timeSlots = mockData.generateCourtAvailability(date, sport);
+  const timeSlots = cachedMockData.generateCourtAvailability(date, sport);
   
   return sendSuccess({
     date,
@@ -278,7 +289,8 @@ router.get('/api/matches/open', async (request) => {
   const limit = parseInt(url.searchParams.get('limit') || '10');
   const offset = parseInt(url.searchParams.get('offset') || '0');
   
-  let filteredMatches = mockData.matches.filter(match => match.status === 'open');
+  if (!cachedMockData) cachedMockData = createMockData('');
+  let filteredMatches = cachedMockData.matches.filter(match => match.status === 'open');
   
   if (city) {
     filteredMatches = filteredMatches.filter(match => 
@@ -350,7 +362,8 @@ router.get('/api/bookings', async (request) => {
     return sendError('Unauthorized', 401);
   }
   
-  const userBookings = mockData.bookings.filter(b => b.userId === user.id);
+  if (!cachedMockData) cachedMockData = createMockData('');
+  const userBookings = cachedMockData.bookings.filter(b => b.userId === user.id);
   return sendSuccess({
     bookings: userBookings,
     total: userBookings.length

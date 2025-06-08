@@ -20,7 +20,7 @@ import {
 import { useParallax } from '../hooks/useParallax';
 import { useTabAnimation } from '../hooks/useTabAnimation';
 import { TABS } from '../constants/booking';
-import { clubsAPI, bookingsAPI } from '../services/api';
+import { clubsAPI, bookingsAPI, configAPI } from '../services/api';
 
 export default function BookingScreen({ navigation, route }) {
   const [showAvailableOnly, setShowAvailableOnly] = useState(true);
@@ -32,6 +32,7 @@ export default function BookingScreen({ navigation, route }) {
   const [clubData, setClubData] = useState(null);
   const [availability, setAvailability] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [bookingConfig, setBookingConfig] = useState(null);
   
   // Get club ID from route params or use default
   const clubId = route?.params?.clubId || 'club_123';
@@ -46,10 +47,26 @@ export default function BookingScreen({ navigation, route }) {
   
   const { underlinePosition } = useTabAnimation(activeTab);
 
-  // Load club data on mount
+  // Load club data and config on mount
   useEffect(() => {
     loadClubData();
+    loadBookingConfig();
   }, [clubId]);
+
+  const loadBookingConfig = async () => {
+    try {
+      console.log(`⚙️ BookingScreen: Loading booking configuration`);
+      const config = await configAPI.getBookingConfig();
+      console.log(`✅ BookingScreen: Booking config loaded:`, config);
+      setBookingConfig(config);
+    } catch (error) {
+      console.error('❌ BookingScreen: Failed to load booking config:', error);
+      console.error('❌ BookingScreen: Config error details:', {
+        message: error.message,
+        stack: error.stack
+      });
+    }
+  };
 
   // Load availability when date changes
   useEffect(() => {
@@ -61,10 +78,17 @@ export default function BookingScreen({ navigation, route }) {
   const loadClubData = async () => {
     try {
       setLoading(true);
+      console.log(`🏢 BookingScreen: Loading club data for ID: ${clubId}`);
       const response = await clubsAPI.getDetails(clubId);
+      console.log(`✅ BookingScreen: Club data loaded successfully:`, response.data);
       setClubData(response.data);
     } catch (error) {
-      console.error('Failed to load club data:', error);
+      console.error('❌ BookingScreen: Failed to load club data:', error);
+      console.error('❌ BookingScreen: Error details:', {
+        message: error.message,
+        stack: error.stack,
+        clubId: clubId
+      });
       Alert.alert('Ошибка', 'Не удалось загрузить информацию о клубе');
     } finally {
       setLoading(false);
@@ -98,9 +122,9 @@ export default function BookingScreen({ navigation, route }) {
         courtId,
         date: dateStr,
         time: timeSlot,
-        duration: 90,
+        duration: bookingConfig?.defaultDuration || 90,
         sport: 'padel',
-        totalPrice: 3000
+        totalPrice: bookingConfig?.defaultPrice || 3000
       };
 
       setLoading(true);

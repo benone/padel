@@ -166,7 +166,7 @@ export default function ComponentsLibrary({ navigation }) {
                 <View style={styles.matchPlayersRow}>
                   <View style={styles.playerInfoSection}>
                     <View style={styles.playerAvatarContainer}>
-                      <Image source={{ uri: 'https://padel-app-backend.hi-sender.workers.dev/api/static-images/profile-female-1' }} style={styles.matchPlayerAvatar} />
+                      <Image source={{ uri: getStaticImageUrl('profile-female-1') }} style={styles.matchPlayerAvatar} />
                       <View style={styles.onlineIndicator} />
                     </View>
                     <View style={styles.playerDetails}>
@@ -198,7 +198,7 @@ export default function ComponentsLibrary({ navigation }) {
               <Text style={styles.componentLabel}>Карта клуба</Text>
               <View style={styles.clubCard}>
                 <Image 
-                  source={{ uri: 'https://padel-app-backend.hi-sender.workers.dev/api/static-images/club-facility-2' }}
+                  source={{ uri: getStaticImageUrl('club-facility-2') }}
                   style={styles.clubImage}
                 />
                 <Text style={styles.clubName}>SUMA Pádel</Text>

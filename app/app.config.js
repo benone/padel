@@ -38,7 +38,7 @@ export default {
   },
   extra: {
     // Production API URL - will be available as Constants.expoConfig.extra.apiBaseUrl
-    apiBaseUrl: process.env.API_BASE_URL || "https://padel-app-backend.hi-sender.workers.dev/api",
+    apiBaseUrl: process.env.API_BASE_URL,
     eas: {
       projectId: "905c3099-761f-41a0-b78e-6b35f90e528a"
     }

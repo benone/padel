@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const { BASE_URL } = require('../config/api.config.js');
 
 const router = express.Router();
 
@@ -83,7 +84,7 @@ router.get('/:imageId', (req, res) => {
       // Return image metadata with a placeholder URL
       res.json({
         id: imageId,
-        url: `http://localhost:3000/api/static-images/${imageId}`,
+        url: `${BASE_URL}/api/static-images/${imageId}`,
         filename: imageInfo.filename,
         category: imageInfo.category,
         description: imageInfo.description,
@@ -110,7 +111,7 @@ router.get('/', (req, res) => {
     
     let images = Object.entries(imageDatabase).map(([id, info]) => ({
       id,
-      url: `http://localhost:3000/api/static-images/${id}`,
+      url: `${BASE_URL}/api/static-images/${id}`,
       ...info
     }));
     
@@ -148,7 +149,7 @@ router.get('/random/:category', (req, res) => {
       .filter(([_, info]) => info.category === category)
       .map(([id, info]) => ({
         id,
-        url: `http://localhost:3000/api/static-images/${id}`,
+        url: `${BASE_URL}/api/static-images/${id}`,
         ...info
       }));
     
