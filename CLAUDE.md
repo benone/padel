@@ -79,9 +79,54 @@ import { useParallax, useHeaderTap } from '../hooks';
 ### Hidden Features
 - **Components Library Access**: Tap the home screen title 5 times to open the hidden ComponentsLibrary screen for UI component reference
 
+## Backend Integration
+
+### Mock API Server
+The project includes a full-featured Express.js backend server in the `/backend` directory:
+
+**Backend Commands:**
+```bash
+# In backend directory
+npm run dev          # Start backend with nodemon (auto-reload)
+npm start           # Start backend in production mode
+```
+
+**Backend Architecture:**
+- **Express Server**: Runs on port 3000 with comprehensive REST API
+- **Mock Data**: Structured mock data in `backend/data/mockData.js` for users, matches, clubs, bookings
+- **AI Image Generation**: Integrates with Runware API for dynamic avatar/image generation
+- **Static Assets**: Local image serving via `/api/static-images` endpoints
+- **Authentication**: Mock JWT-based auth with persistent login state
+- **CORS Configuration**: Configured for React Native dev servers (ports 8081, 19006)
+
+**Key Backend Routes:**
+- `/api/auth/*` - Authentication (login, register, logout)
+- `/api/users/*` - User profiles, stats, connections, bookings  
+- `/api/matches/*` - Match management, open matches, join/create
+- `/api/clubs/*` - Club search, details, availability
+- `/api/images-simple/*` - AI image generation with caching
+- `/api/static-images/*` - Static asset serving
+
+### API Service Layer
+Frontend API integration follows a centralized service pattern:
+
+**Service Structure:**
+- `services/api.js` - Main API client with authentication handling
+- `services/imageAPI.js` - Separate image generation service (avoids circular deps)
+- **Auto-login**: Development mode automatically logs in as mock user
+- **Token Management**: AsyncStorage-based JWT token persistence
+- **Error Handling**: Centralized error handling with timeouts and retry logic
+
+### Data Consistency Patterns
+- **Avatar URLs**: Always use `width=100&height=100` for consistent user avatars across screens
+- **User IDs**: Backend uses consistent user ID mapping between matches and profiles
+- **Mock Authentication**: Use `kirill.romanov@example.com` with any password for admin user
+
 ## Development Guidelines
+- **CSS Styling**: Always use Tailwind CSS classes (NativeWind integration)
 - Use existing UI components from `components/ui/` before creating new ones
 - Import constants from centralized locations rather than hardcoding values
 - Follow the established component composition patterns for new screens
 - Maintain Russian localization for user-facing text
 - Prefer editing existing files over creating new ones unless absolutely necessary
+- **Backend Dependency**: Start backend server before running React Native app for full functionality
