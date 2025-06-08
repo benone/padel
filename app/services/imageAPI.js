@@ -1,6 +1,8 @@
 // Import only the API client class to avoid circular dependency
+import { API_BASE_URL } from '@env';
+
 const API_CONFIG = {
-  baseURL: 'http://localhost:3000/api',
+  baseURL: API_BASE_URL || 'https://padel-app-backend.hi-sender.workers.dev/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

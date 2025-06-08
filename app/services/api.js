@@ -1,12 +1,10 @@
 // API Configuration and Service Layer
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '@env';
 
 // API Configuration
 const API_CONFIG = {
-  // For iOS Simulator
-  baseURL: 'http://localhost:3000/api',
-  // For Android Emulator: 'http://10.0.2.2:3000/api'
-  // For physical device: 'http://[YOUR_IP]:3000/api'
+  baseURL: API_BASE_URL || 'https://padel-app-backend.hi-sender.workers.dev/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

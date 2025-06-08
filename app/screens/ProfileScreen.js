@@ -19,6 +19,7 @@ import {
 } from '../components/ui';
 import { ProfileHeader, ProfileInfo, styles } from '../components/profile';
 import { usersAPI, authAPI } from '../services/api';
+import { getStaticImageUrl } from '../config/api.config';
 
 export default function ProfileScreen({ navigation, route }) {
   const [activeTab, setActiveTab] = useState('activities');
@@ -316,7 +317,7 @@ function ClubsSection({ clubs, userProfile }) {
         {clubs.map((club, index) => (
           <ClubCard
             key={club.id || index}
-            image="http://localhost:3000/api/static-images/club-facility-1"
+            image={getStaticImageUrl('club-facility-1')}
             name={club.name}
             location={club.location || 'Москва'}
             onPress={() => {}}

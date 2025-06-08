@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Avatar, Badge, Button } from '../components/ui';
 import { matchesAPI, authAPI } from '../services/api';
+import { getStaticImageUrl } from '../config/api.config';
 
 export default function MatchDetailsScreen({ navigation, route }) {
   const { matchId } = route.params || {};
@@ -111,7 +112,7 @@ export default function MatchDetailsScreen({ navigation, route }) {
     <SafeAreaView style={styles.container}>
       {/* Header with Background */}
       <ImageBackground
-        source={{ uri: 'http://localhost:3000/api/static-images/court-background-1' }}
+        source={{ uri: getStaticImageUrl('court-background-1') }}
         style={styles.headerBackground}
         imageStyle={styles.headerBackgroundImage}
       >

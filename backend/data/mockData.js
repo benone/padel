@@ -1,4 +1,5 @@
-const { v4: uuidv4 } = require('uuid');
+// Mock data for Cloudflare Workers
+// Using static IDs instead of uuid for Workers compatibility
 
 // Mock Users Data
 const users = [
@@ -622,7 +623,7 @@ const generateUserStats = (userId, period = '6months') => {
   };
 };
 
-module.exports = {
+export const mockData = {
   users,
   clubs,
   matches,

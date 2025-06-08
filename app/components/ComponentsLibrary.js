@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { TabNavigation } from './ui';
+import { getStaticImageUrl } from '../config/api.config';
 
 const { width } = Dimensions.get('window');
 
@@ -165,7 +166,7 @@ export default function ComponentsLibrary({ navigation }) {
                 <View style={styles.matchPlayersRow}>
                   <View style={styles.playerInfoSection}>
                     <View style={styles.playerAvatarContainer}>
-                      <Image source={{ uri: 'http://localhost:3000/api/static-images/profile-female-1' }} style={styles.matchPlayerAvatar} />
+                      <Image source={{ uri: 'https://padel-app-backend.hi-sender.workers.dev/api/static-images/profile-female-1' }} style={styles.matchPlayerAvatar} />
                       <View style={styles.onlineIndicator} />
                     </View>
                     <View style={styles.playerDetails}>
@@ -197,7 +198,7 @@ export default function ComponentsLibrary({ navigation }) {
               <Text style={styles.componentLabel}>Карта клуба</Text>
               <View style={styles.clubCard}>
                 <Image 
-                  source={{ uri: 'http://localhost:3000/api/static-images/club-facility-2' }}
+                  source={{ uri: 'https://padel-app-backend.hi-sender.workers.dev/api/static-images/club-facility-2' }}
                   style={styles.clubImage}
                 />
                 <Text style={styles.clubName}>SUMA Pádel</Text>

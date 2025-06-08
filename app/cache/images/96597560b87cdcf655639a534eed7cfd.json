@@ -1,0 +1,10 @@
+{
+  "prompt": "test",
+  "imageUrl": "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=512&h=512&fit=crop",
+  "width": 512,
+  "height": 512,
+  "style": "realistic",
+  "generatedAt": "2025-06-07T20:35:09.921Z",
+  "cacheKey": "96597560b87cdcf655639a534eed7cfd",
+  "mockGenerated": true
+}
