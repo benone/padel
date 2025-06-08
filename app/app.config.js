@@ -20,6 +20,7 @@ export default {
   ios: {
     supportsTablet: true,
     bundleIdentifier: "com.kirill.padel.booking",
+    buildNumber: "2",
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false
     }
