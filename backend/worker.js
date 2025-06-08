@@ -1,6 +1,6 @@
 // Cloudflare Worker entry point
 import { Router } from 'itty-router';
-import { mockData } from './data/mockData';
+import { mockData } from './data/mockData.mjs';
 
 const router = Router();
 
@@ -152,10 +152,49 @@ router.get('/api/users/:userId', async (request) => {
   return sendSuccess(userProfile, 'User profile retrieved successfully');
 });
 
+router.get('/api/users/:userId/profile', async (request) => {
+  const { userId } = request.params;
+  const userProfile = mockData.users.find(u => u.id === userId) || mockData.users[0];
+  return sendSuccess(userProfile, 'User profile retrieved successfully');
+});
+
 router.get('/api/users/:userId/stats', async (request) => {
   const { userId } = request.params;
-  const userStats = mockData.userStats.find(s => s.userId === userId) || mockData.userStats[0];
+  const userStats = mockData.generateUserStats(userId);
   return sendSuccess(userStats, 'User stats retrieved successfully');
+});
+
+router.get('/api/users/:userId/connections', async (request) => {
+  const { userId } = request.params;
+  
+  // Mock connections data
+  const connections = [
+    {
+      id: "user_789",
+      name: "Мария Иванова",
+      avatar: null,
+      level: 6.8,
+      matchesPlayed: 8
+    },
+    {
+      id: "user_101",
+      name: "Игорь Волков",
+      avatar: `https://api.dicebear.com/9.x/avataaars/svg?seed=user_101`,
+      level: 7.2,
+      matchesPlayed: 12
+    }
+  ];
+  
+  return sendSuccess(connections, 'User connections retrieved successfully');
+});
+
+router.get('/api/users/:userId/clubs', async (request) => {
+  const { userId } = request.params;
+  
+  // Return subset of clubs as user's clubs
+  const userClubs = mockData.clubs.slice(0, 2);
+  
+  return sendSuccess(userClubs, 'User clubs retrieved successfully');
 });
 
 // Clubs endpoints
@@ -200,6 +239,35 @@ router.get('/api/clubs/:clubId', async (request) => {
   }
   
   return sendSuccess(club, 'Club details retrieved successfully');
+});
+
+// Club availability endpoint
+router.get('/api/clubs/:clubId/availability', async (request) => {
+  const { clubId } = request.params;
+  const url = new URL(request.url);
+  const date = url.searchParams.get('date');
+  const sport = url.searchParams.get('sport') || 'padel';
+  
+  const club = mockData.clubs.find(c => c.id === clubId);
+  if (!club) {
+    return sendError('Club not found', 404);
+  }
+  
+  if (!date) {
+    return sendError('Date parameter is required', 400);
+  }
+  
+  const timeSlots = mockData.generateCourtAvailability(date, sport);
+  
+  return sendSuccess({
+    date,
+    sport,
+    club: {
+      id: club.id,
+      name: club.name
+    },
+    timeSlots
+  }, 'Club availability retrieved successfully');
 });
 
 // Matches endpoints
@@ -290,6 +358,23 @@ router.get('/api/bookings', async (request) => {
 });
 
 // Static images endpoint
+router.get('/api/static-images/:imageName', async (request) => {
+  const { imageName } = request.params;
+  
+  // In Cloudflare Workers, we'll return URLs to images hosted elsewhere
+  // For demo purposes, returning placeholder images
+  const imageUrl = `https://placehold.co/800x600/4f46e5/ffffff?text=${imageName}`;
+  
+  return new Response(null, {
+    status: 302,
+    headers: {
+      'Location': imageUrl,
+      ...corsHeaders
+    }
+  });
+});
+
+// Static images endpoint with category (for backward compatibility)
 router.get('/api/static-images/:category/:imageName', async (request) => {
   const { category, imageName } = request.params;
   

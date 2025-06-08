@@ -623,7 +623,7 @@ const generateUserStats = (userId, period = '6months') => {
   };
 };
 
-module.exports = {
+export const mockData = {
   users,
   clubs,
   matches,
