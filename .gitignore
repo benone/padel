@@ -37,3 +37,4 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 backend/cache
+app/cache
