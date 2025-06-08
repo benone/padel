@@ -4,12 +4,15 @@ import { API_BASE_URL } from '@env';
 
 // API Configuration
 const API_CONFIG = {
-  baseURL: API_BASE_URL || 'https://padel-app-backend.hi-sender.workers.dev/api',
+  baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 };
+
+// Debug log the API URL being used
+console.log('🔧 API Config: Using', API_CONFIG.baseURL);
 
 // Storage keys
 const STORAGE_KEYS = {

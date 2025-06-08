@@ -2,7 +2,7 @@
 import { API_BASE_URL } from '@env';
 
 const API_CONFIG = {
-  baseURL: API_BASE_URL || 'https://padel-app-backend.hi-sender.workers.dev/api',
+  baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

@@ -8,7 +8,8 @@ import {
   Image,
   FlatList,
   SafeAreaView,
-  Pressable
+  Pressable,
+  StyleSheet
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, typography } from '../constants';
@@ -18,18 +19,32 @@ import { getGeneratedImageUrl } from '../config/api.config';
 // Mock data for community posts
 const mockPosts = [
   {
+    id: 'pavel_welcome',
+    user: {
+      id: 'pavel_kravtsov',
+      name: 'Павел Кравцов',
+      avatar: getGeneratedImageUrl('дружелюбный инструктор по паделу павел кравцов приветствие'),
+      verified: false
+    },
+    content: 'Готовы ли вы общаться с друзьями, делиться опытом и знакомиться с людьми со схожими спортивными интересами? Давайте начнем! 🎾',
+    subtitle: 'Приветственное сообщение',
+    likes: 0,
+    comments: 0,
+    timestamp: 'Приветственное сообщение'
+  },
+  {
     id: '1',
     user: {
       id: 'user_789',
-      name: 'Ale Galán',
-      avatar: getGeneratedImageUrl('professional padel player male ale galan headshot'),
+      name: 'Алексей Галанов',
+      avatar: getGeneratedImageUrl('профессиональный игрок в падел мужчина алексей галанов портрет'),
       verified: true
     },
-    content: 'Recuperando poco a poco de la mejor manera 🎾⚡️ #AlbaGalán',
-    image: getGeneratedImageUrl('padel court couple playing together happy sunset', 400, 300),
+    content: 'Постепенно восстанавливаюсь наилучшим образом 🎾⚡️ #АлексейГаланов',
+    image: getGeneratedImageUrl('корт для падела пара играет вместе счастливые закат', 400, 300),
     likes: 1012,
     comments: 23,
-    timestamp: 'Apr 13, 2023'
+    timestamp: '13 апр, 2023'
   }
 ];
 
@@ -37,8 +52,8 @@ const mockPosts = [
 const mockSuggestions = [
   {
     id: 'user_456',
-    name: 'Ale Galán',
-    avatar: getGeneratedImageUrl('professional padel player male ale galan headshot'),
+    name: 'Алексей Галанов',
+    avatar: getGeneratedImageUrl('профессиональный игрок в падел мужчина алексей галанов портрет'),
     verified: true
   },
   {
@@ -50,33 +65,33 @@ const mockSuggestions = [
 ];
 
 export default function CommunityScreen() {
-  const [activeTab, setActiveTab] = useState('Feed');
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeTab, setActiveTab] = useState('Лента');
+  const [activeFilter, setActiveFilter] = useState('Все');
   const [searchText, setSearchText] = useState('');
 
   const renderPostCard = ({ item }) => (
-    <View className="bg-white mb-4">
+    <View style={styles.postCard}>
       {/* Post Header */}
-      <View className="flex-row items-center px-4 py-3">
+      <View style={styles.postHeader}>
         <Avatar 
           source={{ uri: item.user.avatar }}
           size={40}
         />
-        <View className="flex-1 ml-3">
-          <View className="flex-row items-center">
-            <Text className="font-semibold text-gray-900 text-base">
+        <View style={styles.postUserInfo}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={styles.postUserName}>
               {item.user.name}
             </Text>
             {item.user.verified && (
               <Ionicons 
                 name="checkmark-circle" 
                 size={16} 
-                color={colors.primary.blue} 
+                color={colors.primary[500]} 
                 style={{ marginLeft: 4 }}
               />
             )}
           </View>
-          <Text className="text-gray-500 text-sm">{item.timestamp}</Text>
+          <Text style={styles.postTimestamp}>{item.timestamp}</Text>
         </View>
         <TouchableOpacity>
           <Ionicons name="ellipsis-horizontal" size={20} color={colors.text.secondary} />
@@ -84,130 +99,127 @@ export default function CommunityScreen() {
       </View>
 
       {/* Post Content */}
-      <View className="px-4 pb-3">
-        <Text className="text-gray-900 text-base leading-5">{item.content}</Text>
+      <View style={styles.postContent}>
+        <Text style={styles.postText}>{item.content}</Text>
       </View>
 
       {/* Post Image */}
       {item.image && (
         <Image 
           source={{ uri: item.image }}
-          className="w-full h-80"
+          style={styles.postImage}
           resizeMode="cover"
         />
       )}
 
       {/* Post Actions */}
-      <View className="flex-row items-center px-4 py-3">
-        <TouchableOpacity className="flex-row items-center mr-6">
+      <View style={styles.postActions}>
+        <TouchableOpacity style={styles.actionButton}>
           <Ionicons name="heart-outline" size={24} color={colors.text.secondary} />
-          <Text className="ml-2 text-gray-600 font-medium">{item.likes}</Text>
+          <Text style={styles.actionText}>{item.likes}</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="flex-row items-center">
+        <TouchableOpacity style={styles.actionButton}>
           <Ionicons name="chatbubble-outline" size={22} color={colors.text.secondary} />
-          <Text className="ml-2 text-gray-600 font-medium">{item.comments}</Text>
+          <Text style={styles.actionText}>{item.comments}</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 
   const renderSuggestionCard = ({ item }) => (
-    <View className="w-36 mr-4 bg-white rounded-xl p-4 items-center">
+    <View style={styles.suggestionCard}>
       <Avatar 
         source={{ uri: item.avatar }}
         size={60}
-        className="mb-3"
       />
-      <View className="items-center mb-3">
-        <View className="flex-row items-center">
-          <Text className="font-semibold text-gray-900 text-sm text-center">
+      <View style={styles.suggestionCardContent}>
+        <View style={styles.suggestionNameContainer}>
+          <Text style={styles.suggestionName}>
             {item.name}
           </Text>
           {item.verified && (
             <Ionicons 
               name="checkmark-circle" 
               size={14} 
-              color={colors.primary.blue} 
+              color={colors.primary[500]} 
               style={{ marginLeft: 2 }}
             />
           )}
         </View>
       </View>
       <Button
-        title="Follow"
+        title="Подписаться"
         size="sm"
         variant="primary"
-        className="w-full"
+        style={{ width: '100%' }}
       />
     </View>
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <View className="bg-slate-800 px-4 pt-2 pb-4">
-        {/* Search and notifications */}
-        <View className="flex-row items-center mb-4">
-          <View className="flex-1 flex-row items-center bg-white rounded-full px-4 py-3 mr-3">
-            <Ionicons name="search" size={20} color={colors.text.secondary} />
-            <TextInput
-              placeholder="Search players"
-              value={searchText}
-              onChangeText={setSearchText}
-              className="flex-1 ml-3 text-base"
-              placeholderTextColor={colors.text.secondary}
-            />
-          </View>
-          <TouchableOpacity className="p-2">
-            <Ionicons name="notifications-outline" size={24} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity className="p-2 ml-2">
-            <Ionicons name="menu" size={24} color="white" />
-          </TouchableOpacity>
+    <View style={styles.container}>
+      {/* Search Bar */}
+      <View style={styles.searchSection}>
+        <View style={styles.searchInput}>
+          <Ionicons name="search" size={20} color={colors.text.secondary} />
+          <TextInput
+            placeholder="Поиск игроков"
+            value={searchText}
+            onChangeText={setSearchText}
+            style={styles.searchTextInput}
+            placeholderTextColor={colors.text.secondary}
+          />
         </View>
+      </View>
 
-        {/* Tab Navigation */}
-        <View className="flex-row">
-          {['Feed', 'Groups'].map((tab) => (
+      {/* Tab Navigation */}
+      <View style={styles.tabContainer}>
+        {['Лента', 'Группы'].map((tab) => (
             <TouchableOpacity
               key={tab}
               onPress={() => setActiveTab(tab)}
-              className="mr-8"
+              style={{ marginRight: 32 }}
             >
               <Text 
-                className={`text-lg font-medium pb-2 ${
-                  activeTab === tab ? 'text-white' : 'text-gray-400'
-                }`}
+                style={[
+                  styles.tabText,
+                  { fontSize: typography.sizes.lg, paddingBottom: 8 },
+                  activeTab === tab ? styles.tabTextActive : { color: '#9ca3af' }
+                ]}
               >
                 {tab}
               </Text>
               {activeTab === tab && (
-                <View className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />
+                <View style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: 2,
+                  backgroundColor: 'white'
+                }} />
               )}
             </TouchableOpacity>
           ))}
         </View>
-      </View>
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Filter Chips */}
-        <View className="flex-row px-4 py-3">
-          {['All', 'Your posts'].map((filter) => (
+        <View style={styles.filterContainer}>
+          {['Все', 'Ваши посты'].map((filter) => (
             <TouchableOpacity
               key={filter}
               onPress={() => setActiveFilter(filter)}
-              className={`mr-3 px-4 py-2 rounded-full ${
-                activeFilter === filter 
-                  ? 'bg-slate-800' 
-                  : 'bg-gray-200'
-              }`}
+              style={[
+                styles.filterChip,
+                activeFilter === filter ? styles.filterChipActive : styles.filterChipInactive
+              ]}
             >
               <Text 
-                className={`font-medium ${
-                  activeFilter === filter 
-                    ? 'text-white' 
-                    : 'text-gray-600'
-                }`}
+                style={[
+                  styles.filterText,
+                  activeFilter === filter ? styles.filterTextActive : styles.filterTextInactive
+                ]}
               >
                 {filter}
               </Text>
@@ -216,11 +228,11 @@ export default function CommunityScreen() {
         </View>
 
         {/* Suggested for you */}
-        <View className="mb-4">
-          <View className="flex-row justify-between items-center px-4 mb-3">
-            <Text className="text-xl font-bold text-gray-900">Suggested for you</Text>
+        <View style={styles.suggestionSection}>
+          <View style={styles.suggestionHeader}>
+            <Text style={styles.suggestionTitle}>Рекомендуем для вас</Text>
             <TouchableOpacity>
-              <Text className="text-blue-600 font-medium">See all</Text>
+              <Text style={styles.seeAllText}>Посмотреть все</Text>
             </TouchableOpacity>
           </View>
           
@@ -228,7 +240,7 @@ export default function CommunityScreen() {
             data={[
               { 
                 id: 'add-friends', 
-                name: 'Add friends from your phonebook',
+                name: 'Добавить друзей из телефонной книги',
                 isAddFriends: true 
               },
               ...mockSuggestions
@@ -236,12 +248,12 @@ export default function CommunityScreen() {
             renderItem={({ item }) => {
               if (item.isAddFriends) {
                 return (
-                  <View className="w-32 mr-4 bg-white rounded-xl p-4 items-center justify-center h-40">
-                    <View className="w-16 h-16 border-2 border-dashed border-gray-300 rounded-full items-center justify-center mb-3">
+                  <View style={styles.addFriendsCard}>
+                    <View style={styles.addFriendsIcon}>
                       <Ionicons name="add" size={24} color={colors.text.secondary} />
                     </View>
-                    <Text className="text-center text-sm text-gray-600 font-medium">
-                      Add friends from your phonebook
+                    <Text style={styles.addFriendsText}>
+                      Добавить друзей из телефонной книги
                     </Text>
                   </View>
                 );
@@ -255,24 +267,6 @@ export default function CommunityScreen() {
           />
         </View>
 
-        {/* Welcome Message */}
-        <View className="bg-white mx-4 rounded-xl p-4 mb-4">
-          <View className="flex-row items-start">
-            <Avatar 
-              source={{ 
-                uri: getGeneratedImageUrl('friendly padel instructor pedro claveria welcome') 
-              }}
-              size={40}
-            />
-            <View className="flex-1 ml-3">
-              <Text className="font-semibold text-gray-900 mb-1">Pedro Claveria</Text>
-              <Text className="text-gray-500 text-sm mb-2">Welcome message</Text>
-              <Text className="text-gray-800 leading-5">
-                Are you ready to connect with friends, share experiences and meet people with similar sport interests? Let's get started! 🎾
-              </Text>
-            </View>
-          </View>
-        </View>
 
         {/* Posts Feed */}
         {mockPosts.map((post) => (
@@ -295,6 +289,230 @@ export default function CommunityScreen() {
       >
         <Ionicons name="add" size={28} color="white" />
       </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
+  },
+  searchSection: {
+    backgroundColor: 'white',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  searchInput: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 20,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 12,
+    marginRight: 12,
+  },
+  searchTextInput: {
+    flex: 1,
+    marginLeft: spacing.sm,
+    fontSize: typography.sizes.base,
+  },
+  notificationButton: {
+    padding: spacing.sm,
+  },
+  greeting: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    color: 'white',
+    marginBottom: spacing.xs,
+  },
+  subtitle: {
+    fontSize: typography.sizes.sm,
+    color: '#94a3b8',
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: 'white',
+  },
+  tabButton: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    marginRight: spacing.sm,
+    borderRadius: spacing.sm,
+  },
+  tabButtonActive: {
+    backgroundColor: '#1e293b',
+  },
+  tabButtonInactive: {
+    backgroundColor: '#e5e7eb',
+  },
+  tabText: {
+    fontWeight: typography.weights.medium,
+  },
+  tabTextActive: {
+    color: 'white',
+  },
+  tabTextInactive: {
+    color: '#6b7280',
+  },
+  postCard: {
+    backgroundColor: 'white',
+    marginBottom: spacing.md,
+  },
+  postHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: 12,
+  },
+  postUserInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  postUserName: {
+    fontWeight: typography.weights.semibold,
+    color: colors.gray[900],
+    fontSize: typography.sizes.base,
+  },
+  postTimestamp: {
+    color: '#6b7280',
+    fontSize: typography.sizes.sm,
+  },
+  postContent: {
+    paddingHorizontal: spacing.md,
+    paddingBottom: 12,
+  },
+  postText: {
+    color: colors.gray[900],
+    fontSize: typography.sizes.base,
+    lineHeight: 20,
+  },
+  postImage: {
+    width: '100%',
+    height: 320,
+  },
+  postActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: 12,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: spacing.lg,
+  },
+  actionText: {
+    marginLeft: spacing.sm,
+    color: '#6b7280',
+    fontWeight: typography.weights.medium,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.md,
+    paddingVertical: 12,
+  },
+  filterChip: {
+    marginRight: 12,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 20,
+  },
+  filterChipActive: {
+    backgroundColor: '#1e293b',
+  },
+  filterChipInactive: {
+    backgroundColor: '#e5e7eb',
+  },
+  filterText: {
+    fontWeight: typography.weights.medium,
+  },
+  filterTextActive: {
+    color: 'white',
+  },
+  filterTextInactive: {
+    color: '#6b7280',
+  },
+  suggestionSection: {
+    marginBottom: spacing.md,
+  },
+  suggestionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    marginBottom: 12,
+  },
+  suggestionTitle: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    color: colors.gray[900],
+  },
+  seeAllText: {
+    color: colors.primary[600],
+    fontWeight: typography.weights.medium,
+  },
+  suggestionCard: {
+    width: 144,
+    marginRight: spacing.md,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: spacing.md,
+    alignItems: 'center',
+  },
+  suggestionCardContent: {
+    alignItems: 'center',
+    marginBottom: 12,
+    marginTop: 12,
+  },
+  suggestionNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  suggestionName: {
+    fontWeight: typography.weights.semibold,
+    color: colors.gray[900],
+    fontSize: typography.sizes.sm,
+    textAlign: 'center',
+  },
+  addFriendsCard: {
+    width: 128,
+    marginRight: spacing.md,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 160,
+  },
+  addFriendsIcon: {
+    width: 64,
+    height: 64,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: '#d1d5db',
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  addFriendsText: {
+    textAlign: 'center',
+    fontSize: typography.sizes.sm,
+    color: '#6b7280',
+    fontWeight: typography.weights.medium,
+  },
+});

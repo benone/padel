@@ -24,6 +24,12 @@ export const colors = {
   status: {
     bar: '#1e3a4a',
   },
+  text: {
+    primary: '#111827',
+    secondary: '#6b7280',
+    disabled: '#9ca3af',
+    inverse: '#ffffff',
+  },
 };
 
 export const spacing = {

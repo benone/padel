@@ -1,19 +1,13 @@
 // Centralized API configuration for React Native app
 import { API_BASE_URL } from '@env';
 
-// Base URL for API calls - falls back to localhost for development
+// Base URL for API calls - uses environment variable or defaults to worker
 const getBaseUrl = () => {
   if (API_BASE_URL) {
     return API_BASE_URL.replace('/api', '');
   }
   
-  // Development fallback - adjust based on your development setup
-  // For iOS Simulator
-  if (__DEV__) {
-    return 'http://localhost:3000';
-  }
-  
-  // Production fallback
+  // Default to Cloudflare Worker
   return 'https://padel-app-backend.hi-sender.workers.dev';
 };
 
@@ -22,12 +16,7 @@ const getApiUrl = () => {
     return API_BASE_URL;
   }
   
-  // Development fallback
-  if (__DEV__) {
-    return 'http://localhost:3000/api';
-  }
-  
-  // Production fallback
+  // Default to Cloudflare Worker
   return 'https://padel-app-backend.hi-sender.workers.dev/api';
 };
 
