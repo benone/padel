@@ -43,5 +43,5 @@ export default {
       projectId: "905c3099-761f-41a0-b78e-6b35f90e528a"
     }
   },
-  owner: "benone1"
+  owner: "akvastar"
 };
