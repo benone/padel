@@ -148,3 +148,26 @@ PORT=3000                              # Server port (default)
 - **Dependencies**: Check existing package.json before adding new libraries
 - **Backend Dependency**: Start backend server before running React Native app for full functionality
 - **Mock Data**: Use consistent user IDs and authentication tokens across frontend and backend
+
+## Additional Development Notes
+
+### Cloudflare Workers Deployment
+The backend supports dual deployment with specific configurations:
+- **Express Server** (`server.js`): Full-featured development server
+- **Cloudflare Workers** (`worker.js`): Edge deployment with limitations (no file system, limited image generation)
+- **Deployment Commands**: `npm run deploy`, `npm run dev:worker` for local testing
+
+### Build Configuration Details
+- **EAS Build Profiles**: `development`, `preview`, `production` configured in `eas.json`
+- **Resource Classes**: Medium instances for iOS builds
+- **Android Builds**: APK format for preview, production uses default
+- **Simulator Support**: Enabled for iOS preview builds
+
+### Port Configuration
+- **Frontend**: Port 8082 (Expo dev server)
+- **Backend Express**: Port 3000 (configurable via PORT env var)
+- **Cloudflare Worker Dev**: Port 8787
+- **CORS**: Configured for ports 8081, 19006, and exp:// protocols
+
+### Current Development State
+The project typically maintains working changes during development. Files like `CommunityScreen.js`, `api.js`, `server.js`, `worker.js`, and `backend/routes/community.js` may have uncommitted changes that represent active development work.

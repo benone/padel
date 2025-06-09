@@ -14,68 +14,93 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, typography } from '../constants';
 import { Avatar, Button, Chip, PersonCard } from '../components/ui';
-import { getGeneratedImageUrl } from '../config/api.config';
+import { communityAPI } from '../services/api';
 
-// Mock data for community posts
-const mockPosts = [
-  {
-    id: 'pavel_welcome',
-    user: {
-      id: 'pavel_kravtsov',
-      name: 'Павел Кравцов',
-      avatar: getGeneratedImageUrl('дружелюбный инструктор по паделу павел кравцов приветствие'),
-      verified: false
-    },
-    content: 'Готовы ли вы общаться с друзьями, делиться опытом и знакомиться с людьми со схожими спортивными интересами? Давайте начнем! 🎾',
-    subtitle: 'Приветственное сообщение',
-    likes: 0,
-    comments: 0,
-    timestamp: 'Приветственное сообщение'
-  },
-  {
-    id: '1',
-    user: {
-      id: 'user_789',
-      name: 'Алексей Галанов',
-      avatar: getGeneratedImageUrl('профессиональный игрок в падел мужчина алексей галанов портрет'),
-      verified: true
-    },
-    content: 'Постепенно восстанавливаюсь наилучшим образом 🎾⚡️ #АлексейГаланов',
-    image: getGeneratedImageUrl('корт для падела пара играет вместе счастливые закат', 400, 300),
-    likes: 1012,
-    comments: 23,
-    timestamp: '13 апр, 2023'
-  }
-];
-
-// Mock suggested users
-const mockSuggestions = [
-  {
-    id: 'user_456',
-    name: 'Алексей Галанов',
-    avatar: getGeneratedImageUrl('профессиональный игрок в падел мужчина алексей галанов портрет'),
-    verified: true
-  },
-  {
-    id: 'user_321',
-    name: 'Андрей Смирнов',
-    avatar: getGeneratedImageUrl('professional padel player male russian headshot'),
-    verified: false
-  }
-];
 
 export default function CommunityScreen() {
   const [activeTab, setActiveTab] = useState('Лента');
   const [activeFilter, setActiveFilter] = useState('Все');
   const [searchText, setSearchText] = useState('');
+  
+  // API data states
+  const [posts, setPosts] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Load data on mount
+  useEffect(() => {
+    loadCommunityData();
+  }, []);
+
+  const loadCommunityData = async () => {
+    try {
+      setLoading(true);
+      console.log('🏠 CommunityScreen: Loading community data');
+      
+      const [postsResponse, suggestionsResponse] = await Promise.all([
+        communityAPI.getPosts({ limit: 10 }),
+        communityAPI.getSuggestions({ limit: 4 })
+      ]);
+
+      console.log('✅ CommunityScreen: Posts loaded:', postsResponse.data.posts?.length || 0);
+      console.log('✅ CommunityScreen: Suggestions loaded:', suggestionsResponse.data.length);
+      
+      setPosts(postsResponse.data.posts || []);
+      setSuggestions(suggestionsResponse.data || []);
+    } catch (error) {
+      console.error('❌ CommunityScreen: Failed to load community data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadCommunityData();
+    setRefreshing(false);
+  };
+
+  const handleLikePost = async (postId) => {
+    try {
+      const response = await communityAPI.likePost(postId);
+      console.log('❤️ CommunityScreen: Post liked:', response.data);
+      
+      // Update local state
+      setPosts(prevPosts => 
+        prevPosts.map(post => 
+          post.id === postId 
+            ? { ...post, likes: response.data.newLikeCount, liked: response.data.liked }
+            : post
+        )
+      );
+    } catch (error) {
+      console.error('❌ CommunityScreen: Failed to like post:', error);
+    }
+  };
+
+  const handleFollowUser = async (userId) => {
+    try {
+      const response = await communityAPI.followUser(userId);
+      console.log('👥 CommunityScreen: User followed:', response.data);
+      
+      // Update local state
+      setSuggestions(prevSuggestions => 
+        prevSuggestions.filter(suggestion => suggestion.id !== userId)
+      );
+    } catch (error) {
+      console.error('❌ CommunityScreen: Failed to follow user:', error);
+    }
+  };
 
   const renderPostCard = ({ item }) => (
     <View style={styles.postCard}>
       {/* Post Header */}
       <View style={styles.postHeader}>
         <Avatar 
-          source={{ uri: item.user.avatar }}
-          size={40}
+          uri={item.user.avatar}
+          initials={item.user.name.split(' ').map(n => n[0]).join('')}
+          size="small"
         />
         <View style={styles.postUserInfo}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -114,8 +139,15 @@ export default function CommunityScreen() {
 
       {/* Post Actions */}
       <View style={styles.postActions}>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="heart-outline" size={24} color={colors.text.secondary} />
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={() => handleLikePost(item.id)}
+        >
+          <Ionicons 
+            name={item.liked ? "heart" : "heart-outline"} 
+            size={24} 
+            color={item.liked ? "#ef4444" : colors.text.secondary} 
+          />
           <Text style={styles.actionText}>{item.likes}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
@@ -129,8 +161,9 @@ export default function CommunityScreen() {
   const renderSuggestionCard = ({ item }) => (
     <View style={styles.suggestionCard}>
       <Avatar 
-        source={{ uri: item.avatar }}
-        size={60}
+        uri={item.avatar}
+        initials={item.name.split(' ').map(n => n[0]).join('')}
+        size="large"
       />
       <View style={styles.suggestionCardContent}>
         <View style={styles.suggestionNameContainer}>
@@ -152,6 +185,7 @@ export default function CommunityScreen() {
         size="sm"
         variant="primary"
         style={{ width: '100%' }}
+        onPress={() => handleFollowUser(item.id)}
       />
     </View>
   );
@@ -243,7 +277,7 @@ export default function CommunityScreen() {
                 name: 'Добавить друзей из телефонной книги',
                 isAddFriends: true 
               },
-              ...mockSuggestions
+              ...suggestions
             ]}
             renderItem={({ item }) => {
               if (item.isAddFriends) {
@@ -269,7 +303,7 @@ export default function CommunityScreen() {
 
 
         {/* Posts Feed */}
-        {mockPosts.map((post) => (
+        {posts.map((post) => (
           <View key={post.id}>
             {renderPostCard({ item: post })}
           </View>

@@ -355,6 +355,20 @@ router.post('/api/matches', async (request) => {
   }
 });
 
+// Get match details
+router.get('/api/matches/:matchId', async (request) => {
+  const { matchId } = request.params;
+  if (!cachedMockData) cachedMockData = createMockData('');
+  
+  const match = cachedMockData.matches.find(m => m.id === matchId);
+  
+  if (!match) {
+    return sendError('Match not found', 404);
+  }
+  
+  return sendSuccess(match, 'Match details retrieved successfully');
+});
+
 // Bookings endpoints
 router.get('/api/bookings', async (request) => {
   const user = await authenticateToken(request);
@@ -368,6 +382,327 @@ router.get('/api/bookings', async (request) => {
     bookings: userBookings,
     total: userBookings.length
   }, 'Bookings retrieved successfully');
+});
+
+// Community endpoints
+router.get('/api/community/posts', async (request) => {
+  const user = await authenticateToken(request);
+  if (!user) {
+    return sendError('Unauthorized', 401);
+  }
+  
+  if (!cachedMockData) cachedMockData = createMockData('');
+  
+  const url = new URL(request.url);
+  const type = url.searchParams.get('type');
+  const page = parseInt(url.searchParams.get('page') || '1');
+  const limit = parseInt(url.searchParams.get('limit') || '10');
+  
+  // Create community posts data
+  const posts = [
+    {
+      id: 'pavel_welcome',
+      user: {
+        id: 'pavel_kravtsov',
+        name: 'Павел Кравцов',
+        avatar: '/api/images-simple/generate?prompt=дружелюбный%20инструктор%20по%20паделу%20павел%20кравцов%20приветствие&width=100&height=100',
+        verified: false
+      },
+      content: 'Готовы ли вы общаться с друзьями, делиться опытом и знакомиться с людьми со схожими спортивными интересами? Давайте начнем! 🎾',
+      subtitle: 'Приветственное сообщение',
+      likes: 0,
+      comments: 0,
+      timestamp: 'Приветственное сообщение',
+      type: 'welcome'
+    },
+    {
+      id: '1',
+      user: {
+        id: 'user_789',
+        name: 'Алексей Галанов',
+        avatar: '/api/images-simple/generate?prompt=профессиональный%20игрок%20в%20падел%20мужчина%20алексей%20галанов%20портрет&width=100&height=100',
+        verified: true
+      },
+      content: 'Постепенно восстанавливаюсь наилучшим образом 🎾⚡️ #АлексейГаланов',
+      image: '/api/images-simple/generate?prompt=корт%20для%20падела%20пара%20играет%20вместе%20счастливые%20закат&width=400&height=300',
+      likes: 1012,
+      comments: 23,
+      timestamp: '13 апр, 2023',
+      type: 'post'
+    },
+    {
+      id: '2',
+      user: {
+        id: 'user_456',
+        name: 'Марина Сидорова',
+        avatar: '/api/images-simple/generate?prompt=профессиональная%20игрок%20в%20падел%20женщина%20марина%20портрет&width=100&height=100',
+        verified: false
+      },
+      content: 'Отличная тренировка сегодня! Кто готов к матчу завтра утром? 💪',
+      likes: 45,
+      comments: 8,
+      timestamp: '2 часа назад',
+      type: 'post'
+    },
+    {
+      id: '3',
+      user: {
+        id: 'user_321',
+        name: 'Андрей Смирнов',
+        avatar: '/api/images-simple/generate?prompt=professional%20padel%20player%20male%20russian%20headshot&width=100&height=100',
+        verified: false
+      },
+      content: 'Новый корт в "Падел Центре" просто огонь! Рекомендую всем попробовать 🔥',
+      image: '/api/images-simple/generate?prompt=современный%20корт%20для%20падела%20интерьер%20освещение&width=400&height=300',
+      likes: 78,
+      comments: 15,
+      timestamp: '5 часов назад',
+      type: 'post'
+    }
+  ];
+  
+  // Filter by type if specified
+  const filteredPosts = type ? posts.filter(post => post.type === type) : posts;
+  
+  // Pagination
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedPosts = filteredPosts.slice(startIndex, endIndex);
+  
+  return sendSuccess({
+    posts: paginatedPosts,
+    currentPage: page,
+    totalPages: Math.ceil(filteredPosts.length / limit),
+    totalPosts: filteredPosts.length,
+    hasMore: endIndex < filteredPosts.length
+  }, 'Community posts retrieved successfully');
+});
+
+router.get('/api/community/suggestions', async (request) => {
+  const user = await authenticateToken(request);
+  if (!user) {
+    return sendError('Unauthorized', 401);
+  }
+  
+  const url = new URL(request.url);
+  const limit = parseInt(url.searchParams.get('limit') || '4');
+  
+  const suggestions = [
+    {
+      id: "user_501",
+      name: "Елена Васильева",
+      avatar: '/api/images-simple/generate?prompt=профессиональная%20игрок%20в%20падел%20женщина%20елена%20портрет&width=100&height=100',
+      verified: false,
+      level: 8.1,
+      mutualFriends: 5,
+      location: "Москва",
+      age: 29,
+      matchesPlayed: 67,
+      winRate: 73,
+      preferredTime: "Вечер",
+      playingStyle: "Атакующий"
+    },
+    {
+      id: "user_502", 
+      name: "Михаил Коваленко",
+      avatar: '/api/images-simple/generate?prompt=спортивный%20мужчина%20падел%20игрок%20михаил%20портрет&width=100&height=100',
+      verified: true,
+      level: 7.9,
+      mutualFriends: 3,
+      location: "Москва",
+      age: 34,
+      matchesPlayed: 89,
+      winRate: 71,
+      preferredTime: "Утром",
+      playingStyle: "Универсальный"
+    },
+    {
+      id: "user_503",
+      name: "Анастасия Лебедева", 
+      avatar: '/api/images-simple/generate?prompt=молодая%20спортивная%20женщина%20падел%20анастасия%20портрет&width=100&height=100',
+      verified: false,
+      level: 6.7,
+      mutualFriends: 2,
+      location: "Москва",
+      age: 26,
+      matchesPlayed: 34,
+      winRate: 68,
+      preferredTime: "Днем",
+      playingStyle: "Защитный"
+    },
+    {
+      id: "user_504",
+      name: "Сергей Морозов",
+      avatar: '/api/images-simple/generate?prompt=опытный%20игрок%20в%20падел%20мужчина%20сергей%20портрет&width=100&height=100',
+      verified: false,
+      level: 8.3,
+      mutualFriends: 4,
+      location: "Москва", 
+      age: 31,
+      matchesPlayed: 112,
+      winRate: 76,
+      preferredTime: "Вечер",
+      playingStyle: "Агрессивный"
+    },
+    {
+      id: "user_505",
+      name: "Ольга Федорова",
+      avatar: '/api/images-simple/generate?prompt=профессиональная%20падел%20игрок%20ольга%20женщина%20портрет&width=100&height=100',
+      verified: true,
+      level: 7.6,
+      mutualFriends: 6,
+      location: "Москва",
+      age: 28,
+      matchesPlayed: 78,
+      winRate: 69,
+      preferredTime: "Утром",
+      playingStyle: "Тактический"
+    },
+    {
+      id: "user_506", 
+      name: "Владимир Петров",
+      avatar: '/api/images-simple/generate?prompt=зрелый%20игрок%20в%20падел%20владимир%20мужчина%20портрет&width=100&height=100',
+      verified: false,
+      level: 6.9,
+      mutualFriends: 1,
+      location: "Москва",
+      age: 42,
+      matchesPlayed: 56,
+      winRate: 64,
+      preferredTime: "Днем",
+      playingStyle: "Стабильный"
+    },
+    {
+      id: "user_507",
+      name: "Татьяна Белова",
+      avatar: '/api/images-simple/generate?prompt=активная%20женщина%20падел%20игрок%20татьяна%20портрет&width=100&height=100',
+      verified: false,
+      level: 7.2,
+      mutualFriends: 3,
+      location: "Москва",
+      age: 35,
+      matchesPlayed: 41,
+      winRate: 72,
+      preferredTime: "Вечер",
+      playingStyle: "Контр-атакующий"
+    },
+    {
+      id: "user_508",
+      name: "Александр Новиков",
+      avatar: '/api/images-simple/generate?prompt=молодой%20падел%20игрок%20александр%20мужчина%20портрет&width=100&height=100',
+      verified: false,
+      level: 6.5,
+      mutualFriends: 2,
+      location: "Москва",
+      age: 24,
+      matchesPlayed: 28,
+      winRate: 61,
+      preferredTime: "Утром",
+      playingStyle: "Развивающийся"
+    },
+    {
+      id: "user_509",
+      name: "Ирина Козлова",
+      avatar: '/api/images-simple/generate?prompt=элегантная%20женщина%20падел%20ирина%20игрок%20портрет&width=100&height=100',
+      verified: true,
+      level: 8.0,
+      mutualFriends: 7,
+      location: "Москва",
+      age: 30,
+      matchesPlayed: 95,
+      winRate: 74,
+      preferredTime: "Днем",
+      playingStyle: "Точный"
+    },
+    {
+      id: "user_510",
+      name: "Роман Сидоров", 
+      avatar: '/api/images-simple/generate?prompt=сильный%20падел%20игрок%20роман%20мужчина%20портрет&width=100&height=100',
+      verified: false,
+      level: 7.4,
+      mutualFriends: 4,
+      location: "Москва",
+      age: 27,
+      matchesPlayed: 63,
+      winRate: 67,
+      preferredTime: "Вечер",
+      playingStyle: "Мощный"
+    }
+  ];
+  
+  const limitedSuggestions = suggestions.slice(0, limit);
+  return sendSuccess(limitedSuggestions, 'User suggestions retrieved successfully');
+});
+
+router.post('/api/community/posts/:postId/like', async (request) => {
+  const user = await authenticateToken(request);
+  if (!user) {
+    return sendError('Unauthorized', 401);
+  }
+  
+  const { postId } = request.params;
+  
+  return sendSuccess({
+    liked: true,
+    newLikeCount: Math.floor(Math.random() * 100) + 1
+  }, 'Post liked successfully');
+});
+
+router.post('/api/community/users/:userId/follow', async (request) => {
+  const user = await authenticateToken(request);
+  if (!user) {
+    return sendError('Unauthorized', 401);
+  }
+  
+  const { userId } = request.params;
+  
+  if (userId === user.id) {
+    return sendError('Cannot follow yourself', 400);
+  }
+  
+  return sendSuccess({
+    following: true,
+    message: 'Successfully followed user'
+  }, 'User followed successfully');
+});
+
+router.get('/api/community/search', async (request) => {
+  const user = await authenticateToken(request);
+  if (!user) {
+    return sendError('Unauthorized', 401);
+  }
+  
+  const url = new URL(request.url);
+  const query = url.searchParams.get('q');
+  
+  if (!query) {
+    return sendError('Search query is required', 400);
+  }
+  
+  // Simple mock search results
+  const searchLower = query.toLowerCase();
+  
+  const matchingPosts = [
+    {
+      id: '1',
+      user: { name: 'Алексей Галанов' },
+      content: 'Постепенно восстанавливаюсь наилучшим образом 🎾⚡️'
+    }
+  ].filter(post => 
+    post.content.toLowerCase().includes(searchLower) ||
+    post.user.name.toLowerCase().includes(searchLower)
+  );
+  
+  const matchingUsers = [
+    { id: 'user_456', name: 'Алексей Галанов' },
+    { id: 'user_321', name: 'Андрей Смирнов' }
+  ].filter(user => user.name.toLowerCase().includes(searchLower));
+  
+  return sendSuccess({
+    posts: matchingPosts,
+    users: matchingUsers,
+    query: query
+  }, 'Search completed successfully');
 });
 
 // Static images endpoint

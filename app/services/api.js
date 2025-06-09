@@ -390,6 +390,29 @@ const supportAPI = {
   },
 };
 
+// Community API
+const communityAPI = {
+  async getPosts(params = {}) {
+    return apiClient.get('/community/posts', params);
+  },
+
+  async getSuggestions(params = {}) {
+    return apiClient.get('/community/suggestions', params);
+  },
+
+  async likePost(postId) {
+    return apiClient.post(`/community/posts/${postId}/like`);
+  },
+
+  async followUser(userId) {
+    return apiClient.post(`/community/users/${userId}/follow`);
+  },
+
+  async search(query) {
+    return apiClient.get('/community/search', { q: query });
+  },
+};
+
 // Export all APIs
 export {
   authAPI,
@@ -401,6 +424,7 @@ export {
   paymentsAPI,
   notificationsAPI,
   supportAPI,
+  communityAPI,
   apiClient,
   initializeAuth
 };

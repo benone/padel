@@ -626,6 +626,150 @@ const generateUserStats = (userId, period = '6months') => {
   };
 };
 
+// Community Suggestions Data
+const suggestions = [
+  {
+    id: "user_501",
+    name: "Елена Васильева",
+    avatar: `${baseUrl}/api/images-simple/generate?prompt=профессиональная%20игрок%20в%20падел%20женщина%20елена%20портрет&width=100&height=100`,
+    verified: false,
+    level: 8.1,
+    mutualFriends: 5,
+    location: "Москва",
+    age: 29,
+    matchesPlayed: 67,
+    winRate: 73,
+    preferredTime: "Вечер",
+    playingStyle: "Атакующий"
+  },
+  {
+    id: "user_502", 
+    name: "Михаил Коваленко",
+    avatar: `${baseUrl}/api/images-simple/generate?prompt=спортивный%20мужчина%20падел%20игрок%20михаил%20портрет&width=100&height=100`,
+    verified: true,
+    level: 7.9,
+    mutualFriends: 3,
+    location: "Москва",
+    age: 34,
+    matchesPlayed: 89,
+    winRate: 71,
+    preferredTime: "Утром",
+    playingStyle: "Универсальный"
+  },
+  {
+    id: "user_503",
+    name: "Анастасия Лебедева", 
+    avatar: `${baseUrl}/api/images-simple/generate?prompt=молодая%20спортивная%20женщина%20падел%20анастасия%20портрет&width=100&height=100`,
+    verified: false,
+    level: 6.7,
+    mutualFriends: 2,
+    location: "Москва",
+    age: 26,
+    matchesPlayed: 34,
+    winRate: 68,
+    preferredTime: "Днем",
+    playingStyle: "Защитный"
+  },
+  {
+    id: "user_504",
+    name: "Сергей Морозов",
+    avatar: `${baseUrl}/api/images-simple/generate?prompt=опытный%20игрок%20в%20падел%20мужчина%20сергей%20портрет&width=100&height=100`,
+    verified: false,
+    level: 8.3,
+    mutualFriends: 4,
+    location: "Москва", 
+    age: 31,
+    matchesPlayed: 112,
+    winRate: 76,
+    preferredTime: "Вечер",
+    playingStyle: "Агрессивный"
+  },
+  {
+    id: "user_505",
+    name: "Ольга Федорова",
+    avatar: `${baseUrl}/api/images-simple/generate?prompt=профессиональная%20падел%20игрок%20ольга%20женщина%20портрет&width=100&height=100`,
+    verified: true,
+    level: 7.6,
+    mutualFriends: 6,
+    location: "Москва",
+    age: 28,
+    matchesPlayed: 78,
+    winRate: 69,
+    preferredTime: "Утром",
+    playingStyle: "Тактический"
+  },
+  {
+    id: "user_506", 
+    name: "Владимир Петров",
+    avatar: `${baseUrl}/api/images-simple/generate?prompt=зрелый%20игрок%20в%20падел%20владимир%20мужчина%20портрет&width=100&height=100`,
+    verified: false,
+    level: 6.9,
+    mutualFriends: 1,
+    location: "Москва",
+    age: 42,
+    matchesPlayed: 56,
+    winRate: 64,
+    preferredTime: "Днем",
+    playingStyle: "Стабильный"
+  },
+  {
+    id: "user_507",
+    name: "Татьяна Белова",
+    avatar: `${baseUrl}/api/images-simple/generate?prompt=активная%20женщина%20падел%20игрок%20татьяна%20портрет&width=100&height=100`,
+    verified: false,
+    level: 7.2,
+    mutualFriends: 3,
+    location: "Москва",
+    age: 35,
+    matchesPlayed: 41,
+    winRate: 72,
+    preferredTime: "Вечер",
+    playingStyle: "Контр-атакующий"
+  },
+  {
+    id: "user_508",
+    name: "Александр Новиков",
+    avatar: `${baseUrl}/api/images-simple/generate?prompt=молодой%20падел%20игрок%20александр%20мужчина%20портрет&width=100&height=100`,
+    verified: false,
+    level: 6.5,
+    mutualFriends: 2,
+    location: "Москва",
+    age: 24,
+    matchesPlayed: 28,
+    winRate: 61,
+    preferredTime: "Утром",
+    playingStyle: "Развивающийся"
+  },
+  {
+    id: "user_509",
+    name: "Ирина Козлова",
+    avatar: `${baseUrl}/api/images-simple/generate?prompt=элегантная%20женщина%20падел%20ирина%20игрок%20портрет&width=100&height=100`,
+    verified: true,
+    level: 8.0,
+    mutualFriends: 7,
+    location: "Москва",
+    age: 30,
+    matchesPlayed: 95,
+    winRate: 74,
+    preferredTime: "Днем",
+    playingStyle: "Точный"
+  },
+  {
+    id: "user_510",
+    name: "Роман Сидоров", 
+    avatar: `${baseUrl}/api/images-simple/generate?prompt=сильный%20падел%20игрок%20роман%20мужчина%20портрет&width=100&height=100`,
+    verified: false,
+    level: 7.4,
+    mutualFriends: 4,
+    location: "Москва",
+    age: 27,
+    matchesPlayed: 63,
+    winRate: 67,
+    preferredTime: "Вечер",
+    playingStyle: "Мощный"
+  }
+];
+
   return {
     users,
     clubs,
@@ -633,6 +777,7 @@ const generateUserStats = (userId, period = '6months') => {
     bookings,
     sports,
     timeSlots,
+    suggestions,
     generateCourtAvailability,
     generateMatchHistory,
     generateUserStats

@@ -50,9 +50,9 @@ export default function MatchDetailsScreen({ navigation, route }) {
         gender: 'Все игроки',
         price: '₽450',
         players: [
-          { name: 'Анна', level: '0.74', initials: 'А' },
-          { name: 'Кирилл', level: '=', initials: 'К', isCurrentUser: true },
-          { name: 'Дмитрий', level: '0.85', initials: 'Д' },
+          { name: 'Анна', level: 0.74, initials: 'А' },
+          { name: 'Кирилл', level: null, initials: 'К', isCurrentUser: true },
+          { name: 'Дмитрий', level: 0.85, initials: 'Д' },
           { name: 'Доступно', available: true }
         ],
         club: {
@@ -101,7 +101,7 @@ export default function MatchDetailsScreen({ navigation, route }) {
               <Text style={styles.waitingIcon}>⏳</Text>
             </View>
           ) : (
-            <Badge text={player.level?.toFixed(2) || '0.00'} type="level" size="small" />
+            <Badge text={player.level ? player.level.toFixed(2) : '0.00'} type="level" size="small" />
           )}
         </TouchableOpacity>
       </View>

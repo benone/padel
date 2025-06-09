@@ -14,6 +14,7 @@ const imagesMockRoutes = require('./routes/images-mock');
 const imagesSimpleRoutes = require('./routes/images-simple');
 const staticImagesRoutes = require('./routes/static-images');
 const configRoutes = require('./routes/config');
+const communityRoutes = require('./routes/community');
 
 // Import middleware
 const { authenticateToken } = require('./middleware/auth');
@@ -270,6 +271,7 @@ app.use('/api/clubs', clubsRoutes);
 app.use('/api/matches', matchesRoutes);
 app.use('/api/bookings', bookingsRoutes);
 app.use('/api/config', configRoutes);
+app.use('/api/community', communityRoutes);
 app.use('/api/images', imagesRoutes);
 app.use('/api/images-mock', imagesMockRoutes);
 app.use('/api/images-simple', imagesSimpleRoutes);
