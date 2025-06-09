@@ -739,6 +739,160 @@ router.get('/api/static-images/:category/:imageName', async (request) => {
   });
 });
 
+// In-memory cache for generated images (simple cache for Workers)
+const imageCache = new Map();
+
+// AI Image generation endpoint with caching
+router.get('/api/images-simple/generate', async (request) => {
+  try {
+    const url = new URL(request.url);
+    const prompt = url.searchParams.get('prompt');
+    let width = parseInt(url.searchParams.get('width') || '512');
+    let height = parseInt(url.searchParams.get('height') || '512');
+    
+    if (!prompt) {
+      return sendError('Missing required parameter: prompt', 400);
+    }
+
+    // Validate and adjust dimensions for Runware API requirements
+    width = Math.max(128, Math.ceil(width / 64) * 64);
+    height = Math.max(128, Math.ceil(height / 64) * 64);
+    width = Math.min(2048, width);
+    height = Math.min(2048, height);
+
+    // Create cache key based on prompt and parameters
+    const encoder = new TextEncoder();
+    const data = encoder.encode(`${prompt}_${width}_${height}`);
+    const hashBuffer = await crypto.subtle.digest('MD5', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const cacheKey = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    // Check cache first
+    if (imageCache.has(cacheKey)) {
+      const cached = imageCache.get(cacheKey);
+      console.log(`🎯 Cache hit for prompt: "${prompt}"`);
+      
+      return new Response(null, {
+        status: 302,
+        headers: {
+          'Location': cached.imageUrl,
+          'Cache-Control': 'public, max-age=31536000',
+          'X-Cache-Hit': 'true',
+          'X-Generated-For': prompt,
+          'X-Dimensions': `${width}x${height}`,
+          'X-AI-Generated': 'true',
+          ...corsHeaders
+        }
+      });
+    }
+
+    console.log(`🎨 AI generating image for prompt: "${prompt}"`);
+
+    // For now, let's add detailed logging and fallback to placeholder
+    console.log(`🔍 Attempting to generate image with Runware API...`);
+    
+    let imageUrl = null;
+    try {
+      // Use Runware WebSocket API (same as SDK)
+      const runwarePayload = {
+        taskType: "imageInference",
+        taskUUID: crypto.randomUUID(),
+        positivePrompt: prompt,
+        width: width,
+        height: height,
+        model: "runware:100@1",
+        numberResults: 1,
+        steps: 20,
+        CFGScale: 7,
+        seed: Math.floor(Math.random() * 1000000)
+      };
+
+      console.log(`📤 Sending payload to Runware:`, JSON.stringify(runwarePayload));
+
+      // For Workers, use direct HTTP API call to Runware
+      const runwareResponse = await fetch('https://api.runware.ai/v1', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${request.env?.RUNWARE_API_TOKEN || 'GoLffJyXPnoNv6u9eHOdwlKSALzQywfP'}`
+        },
+        body: JSON.stringify([runwarePayload])
+      });
+
+      console.log(`📡 Runware response status: ${runwareResponse.status}`);
+
+      if (!runwareResponse.ok) {
+        const errorText = await runwareResponse.text();
+        console.error('Runware API error:', runwareResponse.status, errorText);
+        throw new Error(`Runware API failed with status ${runwareResponse.status}: ${errorText}`);
+      }
+
+      const runwareData = await runwareResponse.json();
+      console.log(`📥 Runware response data:`, JSON.stringify(runwareData));
+      
+      // Handle different possible response structures
+      
+      if (runwareData && runwareData.data && Array.isArray(runwareData.data) && runwareData.data.length > 0) {
+        // Runware API returns data in a 'data' array
+        const firstResult = runwareData.data[0];
+        imageUrl = firstResult.imageURL || firstResult.outputURL || firstResult.image_url;
+      } else if (runwareData && Array.isArray(runwareData) && runwareData.length > 0) {
+        // Array response
+        const firstResult = runwareData[0];
+        imageUrl = firstResult.imageURL || firstResult.outputURL || firstResult.image_url;
+      } else if (runwareData && runwareData.imageURL) {
+        // Direct object response
+        imageUrl = runwareData.imageURL;
+      } else if (runwareData && runwareData.images && runwareData.images.length > 0) {
+        // Nested images array
+        imageUrl = runwareData.images[0].imageURL || runwareData.images[0].url;
+      }
+      
+      if (!imageUrl) {
+        console.error('❌ No imageURL found in response:', JSON.stringify(runwareData));
+        throw new Error('No imageURL found in Runware response');
+      }
+
+      console.log(`✅ Image URL extracted: ${imageUrl}`);
+
+    } catch (runwareError) {
+      console.error('❌ Runware generation failed:', runwareError.message);
+      throw runwareError;
+    }
+    console.log(`✅ Image generated: ${imageUrl}`);
+
+    // Cache the result (simple in-memory cache, limited to prevent memory issues)
+    if (imageCache.size < 100) {  // Limit cache size
+      imageCache.set(cacheKey, {
+        imageUrl,
+        prompt,
+        width,
+        height,
+        generatedAt: new Date().toISOString()
+      });
+    }
+
+    // Return redirect to the generated image
+    return new Response(null, {
+      status: 302,
+      headers: {
+        'Location': imageUrl,
+        'Cache-Control': 'public, max-age=31536000',
+        'X-Cache-Hit': 'false',
+        'X-Generated-For': prompt,
+        'X-Dimensions': `${width}x${height}`,
+        'X-AI-Generated': 'true',
+        'X-Cache-Key': cacheKey,
+        ...corsHeaders
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ AI generation error:', error);
+    return sendError('AI image generation failed', 500, error);
+  }
+});
+
 // Handle OPTIONS for CORS
 router.options('*', () => {
   return new Response(null, {

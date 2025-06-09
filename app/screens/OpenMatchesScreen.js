@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Chip, Avatar, Badge, Button } from '../components/ui';
 import VenueSelectionModal from './VenueSelectionModal';
 import { matchesAPI, clubsAPI, authAPI } from '../services/api';
+import { getImageUrl } from '../config/api.config';
 
 export default function OpenMatchesScreen({ navigation }) {
   const [selectedSport, setSelectedSport] = useState('Падел');
@@ -139,7 +140,7 @@ export default function OpenMatchesScreen({ navigation }) {
                   onPress={() => navigation.navigate('Profile', { userId: player.id })}
                 >
                   <Avatar
-                    uri={player.avatar}
+                    uri={player.avatar ? getImageUrl(player.avatar) : null}
                     initials={player.name ? player.name.charAt(0) : '?'}
                     size="large"
                   />

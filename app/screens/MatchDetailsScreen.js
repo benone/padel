@@ -12,7 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Avatar, Badge, Button } from '../components/ui';
 import { matchesAPI, authAPI } from '../services/api';
-import { getStaticImageUrl } from '../config/api.config';
+import { getStaticImageUrl, getImageUrl } from '../config/api.config';
 
 export default function MatchDetailsScreen({ navigation, route }) {
   const { matchId } = route.params || {};
@@ -87,7 +87,7 @@ export default function MatchDetailsScreen({ navigation, route }) {
           disabled={isCurrentUser}
         >
           <Avatar
-            uri={player.avatar}
+            uri={player.avatar ? getImageUrl(player.avatar) : null}
             initials={player.name ? player.name.charAt(0) : '?'}
             size="large"
           />

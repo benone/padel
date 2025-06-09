@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { Button, Avatar } from '../ui';
 import { styles } from './styles';
+import { getImageUrl } from '../../config/api.config';
 
 export default function ProfileInfo({ userProfile }) {
   if (!userProfile) {
@@ -23,7 +24,7 @@ export default function ProfileInfo({ userProfile }) {
       <View style={styles.avatarContainer}>
         <View style={styles.avatarShadow}>
           <Avatar
-            uri={userProfile.avatar}
+            uri={userProfile.avatar ? getImageUrl(userProfile.avatar) : null}
             initials={userProfile.name ? userProfile.name.split(' ').map(n => n[0]).join('').substring(0, 2) : ''}
             size="xlarge"
             borderColor="white"

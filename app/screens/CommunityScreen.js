@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, typography } from '../constants';
 import { Avatar, Button, Chip, PersonCard } from '../components/ui';
 import { communityAPI } from '../services/api';
+import { getImageUrl } from '../config/api.config';
 
 
 export default function CommunityScreen() {
@@ -98,7 +99,7 @@ export default function CommunityScreen() {
       {/* Post Header */}
       <View style={styles.postHeader}>
         <Avatar 
-          uri={item.user.avatar}
+          uri={item.user.avatar ? getImageUrl(item.user.avatar) : null}
           initials={item.user.name.split(' ').map(n => n[0]).join('')}
           size="small"
         />
@@ -131,7 +132,7 @@ export default function CommunityScreen() {
       {/* Post Image */}
       {item.image && (
         <Image 
-          source={{ uri: item.image }}
+          source={{ uri: getImageUrl(item.image) }}
           style={styles.postImage}
           resizeMode="cover"
         />
@@ -161,7 +162,7 @@ export default function CommunityScreen() {
   const renderSuggestionCard = ({ item }) => (
     <View style={styles.suggestionCard}>
       <Avatar 
-        uri={item.avatar}
+        uri={item.avatar ? getImageUrl(item.avatar) : null}
         initials={item.name.split(' ').map(n => n[0]).join('')}
         size="large"
       />
@@ -218,7 +219,7 @@ export default function CommunityScreen() {
                 style={[
                   styles.tabText,
                   { fontSize: typography.sizes.lg, paddingBottom: 8 },
-                  activeTab === tab ? styles.tabTextActive : { color: '#9ca3af' }
+                  activeTab === tab ? styles.tabTextActive : { color: '#374151' }
                 ]}
               >
                 {tab}
@@ -230,7 +231,7 @@ export default function CommunityScreen() {
                   left: 0,
                   right: 0,
                   height: 2,
-                  backgroundColor: 'white'
+                  backgroundColor: '#3b82f6'
                 }} />
               )}
             </TouchableOpacity>
@@ -394,7 +395,8 @@ const styles = StyleSheet.create({
     fontWeight: typography.weights.medium,
   },
   tabTextActive: {
-    color: 'white',
+    color: '#3b82f6',
+    fontWeight: '600',
   },
   tabTextInactive: {
     color: '#6b7280',

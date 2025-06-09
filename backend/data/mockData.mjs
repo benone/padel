@@ -327,6 +327,289 @@ const matches = [
     ],
     courtBooked: false,
     createdAt: "2024-01-18T14:20:00Z"
+  },
+  {
+    id: "match_890",
+    sport: "Падел",
+    date: "2024-01-22T18:00:00Z",
+    duration: 90,
+    level: "Средний",
+    levelRange: [6.0, 7.5],
+    type: "Парный",
+    playersNeeded: 1,
+    totalPlayers: 4,
+    price: 1200,
+    pricePerPerson: true,
+    competitive: false,
+    genderPreference: "mixed",
+    description: "Дружеская игра для игроков среднего уровня",
+    location: {
+      lat: 55.7658,
+      lng: 37.6076,
+      city: "Москва",
+      address: {
+        street: "ул. Спортивная",
+        number: "15",
+        building: "к1"
+      }
+    },
+    club: {
+      id: "club_789",
+      name: "Корт Мастер",
+      address: "ул. Спортивная, 15к1",
+      distance: 2.1
+    },
+    organizer: {
+      id: "user_789",
+      name: "Мария Иванова",
+      avatar: null,
+      level: 6.8,
+      matchesPlayed: 32,
+      rating: 4.7
+    },
+    players: [
+      {
+        id: "user_789",
+        name: "Мария Иванова",
+        avatar: null,
+        level: 6.8,
+        confirmed: true,
+        role: "organizer"
+      },
+      {
+        id: "user_456",
+        name: "Алексей Петров",
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
+        level: 7.2,
+        confirmed: true,
+        role: "player"
+      },
+      {
+        id: "user_103",
+        name: "Елена Соколова",
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20female%20padel%20player%20headshot%20portrait&width=100&height=100`,
+        level: 6.5,
+        confirmed: true,
+        role: "player"
+      }
+    ],
+    availableSpots: [
+      { position: 4, role: "player" }
+    ],
+    courtBooked: true,
+    courtInfo: {
+      courtId: "court_1",
+      courtName: "Корт 1",
+      surface: "Искусственная трава"
+    },
+    status: "open",
+    createdAt: "2024-01-19T12:15:00Z",
+    updatedAt: "2024-01-19T15:30:00Z",
+    cancellationPolicy: "Отмена возможна за 12 часов до начала игры"
+  },
+  {
+    id: "match_901",
+    sport: "Падел",
+    date: "2024-01-23T19:30:00Z",
+    duration: 90,
+    level: "Начинающий",
+    levelRange: [4.0, 6.5],
+    type: "Парный",
+    playersNeeded: 2,
+    totalPlayers: 4,
+    price: 800,
+    pricePerPerson: true,
+    competitive: false,
+    genderPreference: "any",
+    description: "Идеально для новичков! Дружелюбная атмосфера",
+    location: {
+      lat: 55.7358,
+      lng: 37.5976,
+      city: "Москва",
+      address: {
+        street: "ул. Новая",
+        number: "28",
+        building: ""
+      }
+    },
+    club: {
+      id: "club_101",
+      name: "Старт Падел",
+      address: "ул. Новая, 28",
+      distance: 3.2
+    },
+    organizer: {
+      id: "user_test",
+      name: "Начинающий Игрок",
+      avatar: `${baseUrl}/api/images-simple/generate?prompt=young%20athlete%20beginner%20headshot%20portrait&width=100&height=100`,
+      level: 5.0,
+      matchesPlayed: 5,
+      rating: 4.2
+    },
+    players: [
+      {
+        id: "user_test",
+        name: "Начинающий Игрок",
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=young%20athlete%20beginner%20headshot%20portrait&width=100&height=100`,
+        level: 5.0,
+        confirmed: true,
+        role: "organizer"
+      },
+      {
+        id: "user_104",
+        name: "Анна Петрова",
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=young%20female%20padel%20beginner%20headshot%20portrait&width=100&height=100`,
+        level: 4.8,
+        confirmed: true,
+        role: "player"
+      }
+    ],
+    availableSpots: [
+      { position: 3, role: "player" },
+      { position: 4, role: "player" }
+    ],
+    courtBooked: true,
+    courtInfo: {
+      courtId: "court_3",
+      courtName: "Корт 3",
+      surface: "Синтетическое покрытие"
+    },
+    status: "open",
+    createdAt: "2024-01-20T09:45:00Z",
+    updatedAt: "2024-01-20T11:20:00Z",
+    cancellationPolicy: "Бесплатная отмена за 6 часов"
+  },
+  {
+    id: "match_912",
+    sport: "Падел",
+    date: "2024-01-24T17:00:00Z",
+    duration: 120,
+    level: "Экспертный",
+    levelRange: [8.0, 10.0],
+    type: "Парный",
+    playersNeeded: 3,
+    totalPlayers: 4,
+    price: 2000,
+    pricePerPerson: true,
+    competitive: true,
+    genderPreference: "male",
+    description: "Турнирная игра для экспертов. Высокий уровень игры!",
+    location: {
+      lat: 55.7958,
+      lng: 37.6576,
+      city: "Москва",
+      address: {
+        street: "пр. Чемпионов",
+        number: "55",
+        building: "стр1"
+      }
+    },
+    club: {
+      id: "club_pro",
+      name: "Про Падел Центр",
+      address: "пр. Чемпионов, 55 стр1",
+      distance: 5.8
+    },
+    organizer: {
+      id: "user_105",
+      name: "Владимир Мастер",
+      avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20coach%20expert%20male%20headshot%20portrait&width=100&height=100`,
+      level: 9.2,
+      matchesPlayed: 156,
+      rating: 4.95
+    },
+    players: [
+      {
+        id: "user_105",
+        name: "Владимир Мастер",
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20coach%20expert%20male%20headshot%20portrait&width=100&height=100`,
+        level: 9.2,
+        confirmed: true,
+        role: "organizer"
+      }
+    ],
+    availableSpots: [
+      { position: 2, role: "player" },
+      { position: 3, role: "player" },
+      { position: 4, role: "player" }
+    ],
+    courtBooked: true,
+    courtInfo: {
+      courtId: "court_premium",
+      courtName: "Премиум Корт",
+      surface: "Профессиональное покрытие"
+    },
+    status: "open",
+    createdAt: "2024-01-21T08:30:00Z",
+    updatedAt: "2024-01-21T08:30:00Z",
+    cancellationPolicy: "Отмена возможна за 48 часов"
+  },
+  {
+    id: "match_923",
+    sport: "Падел",
+    date: "2024-01-25T16:00:00Z",
+    duration: 90,
+    level: "Продвинутый",
+    levelRange: [7.0, 8.5],
+    type: "Парный",
+    playersNeeded: 2,
+    totalPlayers: 4,
+    price: 1600,
+    pricePerPerson: true,
+    competitive: false,
+    genderPreference: "female",
+    description: "Женская игра для продвинутых игроков",
+    location: {
+      lat: 55.7258,
+      lng: 37.5776,
+      city: "Москва",
+      address: {
+        street: "ул. Женская",
+        number: "12",
+        building: ""
+      }
+    },
+    club: {
+      id: "club_women",
+      name: "Женский Падел Клуб",
+      address: "ул. Женская, 12",
+      distance: 4.3
+    },
+    organizer: {
+      id: "user_106",
+      name: "Ирина Волкова",
+      avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20female%20padel%20champion%20headshot%20portrait&width=100&height=100`,
+      level: 8.3,
+      matchesPlayed: 89,
+      rating: 4.85
+    },
+    players: [
+      {
+        id: "user_106",
+        name: "Ирина Волкова",
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20female%20padel%20champion%20headshot%20portrait&width=100&height=100`,
+        level: 8.3,
+        confirmed: true,
+        role: "organizer"
+      },
+      {
+        id: "user_103",
+        name: "Елена Соколова",
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20female%20padel%20player%20headshot%20portrait&width=100&height=100`,
+        level: 6.5,
+        confirmed: true,
+        role: "player"
+      }
+    ],
+    availableSpots: [
+      { position: 3, role: "player" },
+      { position: 4, role: "player" }
+    ],
+    courtBooked: false,
+    status: "open",
+    createdAt: "2024-01-22T14:00:00Z",
+    updatedAt: "2024-01-22T16:45:00Z",
+    cancellationPolicy: "Отмена возможна за 24 часа"
   }
 ];
 
@@ -400,6 +683,147 @@ users.push({
   },
   createdAt: "2023-02-10T08:45:00Z",
   lastActive: "2024-01-15T20:15:00Z"
+});
+
+// Add users for new matches
+users.push({
+  id: "user_103",
+  email: "elena.sokolova@example.com",
+  phone: "+7 (999) 666-77-88",
+  name: "Елена Соколова",
+  avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20female%20padel%20player%20headshot%20portrait&width=100&height=100`,
+  level: 6.5,
+  levelName: "Средний",
+  location: {
+    lat: 55.7658,
+    lng: 37.6076,
+    address: "Москва"
+  },
+  age: 27,
+  stats: {
+    totalMatches: 38,
+    wins: 24,
+    losses: 14,
+    winRate: 63,
+    totalHours: 76,
+    currentStreak: 2,
+    favoritePartners: 9,
+    clubsVisited: 6,
+    averageMatchDuration: 85
+  },
+  preferences: {
+    hand: "Правша",
+    position: "Справа",
+    preferredTime: "Днем",
+    playingStyle: "Тактический"
+  },
+  createdAt: "2023-04-15T11:30:00Z",
+  lastActive: "2024-01-15T18:45:00Z"
+});
+
+users.push({
+  id: "user_104",
+  email: "anna.petrova@example.com",
+  phone: "+7 (999) 777-88-99",
+  name: "Анна Петрова",
+  avatar: `${baseUrl}/api/images-simple/generate?prompt=young%20female%20padel%20beginner%20headshot%20portrait&width=100&height=100`,
+  level: 4.8,
+  levelName: "Начинающий",
+  location: {
+    lat: 55.7358,
+    lng: 37.5976,
+    address: "Москва"
+  },
+  age: 23,
+  stats: {
+    totalMatches: 12,
+    wins: 5,
+    losses: 7,
+    winRate: 42,
+    totalHours: 24,
+    currentStreak: 1,
+    favoritePartners: 3,
+    clubsVisited: 2,
+    averageMatchDuration: 85
+  },
+  preferences: {
+    hand: "Левша",
+    position: "Слева",
+    preferredTime: "Вечер",
+    playingStyle: "Начинающий"
+  },
+  createdAt: "2023-11-20T14:00:00Z",
+  lastActive: "2024-01-15T19:30:00Z"
+});
+
+users.push({
+  id: "user_105",
+  email: "vladimir.master@example.com",
+  phone: "+7 (999) 888-99-00",
+  name: "Владимир Мастер",
+  avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20coach%20expert%20male%20headshot%20portrait&width=100&height=100`,
+  level: 9.2,
+  levelName: "Мастер",
+  location: {
+    lat: 55.7958,
+    lng: 37.6576,
+    address: "Москва"
+  },
+  age: 35,
+  stats: {
+    totalMatches: 156,
+    wins: 124,
+    losses: 32,
+    winRate: 79,
+    totalHours: 312,
+    currentStreak: 8,
+    favoritePartners: 25,
+    clubsVisited: 18,
+    averageMatchDuration: 95
+  },
+  preferences: {
+    hand: "Правша",
+    position: "Слева",
+    preferredTime: "Любое",
+    playingStyle: "Профессиональный"
+  },
+  createdAt: "2022-08-05T10:00:00Z",
+  lastActive: "2024-01-15T21:00:00Z"
+});
+
+users.push({
+  id: "user_106",
+  email: "irina.volkova@example.com",
+  phone: "+7 (999) 999-00-11",
+  name: "Ирина Волкова",
+  avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20female%20padel%20champion%20headshot%20portrait&width=100&height=100`,
+  level: 8.3,
+  levelName: "Эксперт",
+  location: {
+    lat: 55.7258,
+    lng: 37.5776,
+    address: "Москва"
+  },
+  age: 30,
+  stats: {
+    totalMatches: 89,
+    wins: 67,
+    losses: 22,
+    winRate: 75,
+    totalHours: 178,
+    currentStreak: 6,
+    favoritePartners: 18,
+    clubsVisited: 12,
+    averageMatchDuration: 92
+  },
+  preferences: {
+    hand: "Правша",
+    position: "Справа",
+    preferredTime: "Утром",
+    playingStyle: "Агрессивный"
+  },
+  createdAt: "2022-12-01T09:15:00Z",
+  lastActive: "2024-01-15T17:20:00Z"
 });
 
 // Mock Bookings Data

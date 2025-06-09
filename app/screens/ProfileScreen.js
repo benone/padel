@@ -19,7 +19,7 @@ import {
 } from '../components/ui';
 import { ProfileHeader, ProfileInfo, styles } from '../components/profile';
 import { usersAPI, authAPI } from '../services/api';
-import { getStaticImageUrl } from '../config/api.config';
+import { getStaticImageUrl, getImageUrl } from '../config/api.config';
 
 export default function ProfileScreen({ navigation, route }) {
   const [activeTab, setActiveTab] = useState('activities');
@@ -291,7 +291,7 @@ function PeopleSection({ connections }) {
         {connections.map((person) => (
           <PersonCard
             key={person.id}
-            avatar={person.avatar}
+            avatar={person.avatar ? getImageUrl(person.avatar) : null}
             initials={person.name.split(' ').map(n => n[0]).join('')}
             name={person.name}
             level={person.level?.toFixed(1) || '0.0'}

@@ -3,6 +3,7 @@ import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Avatar, { AvatarPair } from './Avatar';
 import Badge, { StatusDot, VSIndicator } from './Badge';
+import { getImageUrl } from '../../config/api.config';
 
 export function ActionCard({ 
   title, 
@@ -62,7 +63,7 @@ export function MatchCard({
         {players.map((player, index) => (
           <View key={index} style={styles.playerInfoSection}>
             <Avatar
-              uri={player.avatar}
+              uri={player.avatar ? getImageUrl(player.avatar) : null}
               initials={player.initials}
               size="medium"
               showStatus={player.online}
@@ -108,7 +109,7 @@ export function PersonCard({
   return (
     <TouchableOpacity style={[styles.personCard, style]} onPress={onPress} {...props}>
       <Avatar
-        uri={avatar}
+        uri={avatar ? getImageUrl(avatar) : null}
         initials={initials}
         size="large"
       />
