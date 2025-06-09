@@ -23,11 +23,16 @@ export function ActionCard({
       activeOpacity={0.95}
       {...props}
     >
-      <View style={[styles.actionCardHeader, { backgroundColor }]}>
+      <View style={[styles.actionCardHeader, image ? {} : { backgroundColor }]}>
         {image && (
-          <Image source={image} style={styles.actionCardImage} resizeMode="cover" />
+          <Image 
+            source={typeof image === 'string' ? { uri: image } : image} 
+            style={styles.actionCardImage} 
+            resizeMode="cover"
+            onError={(e) => console.log('ActionCard image error:', e.nativeEvent.error)}
+          />
         )}
-        <View style={[styles.actionCardIcon, { backgroundColor: iconColor }]}>
+        <View style={[styles.actionCardIcon, { backgroundColor: iconColor || backgroundColor }]}>
           <Ionicons name={icon} size={20} color="white" />
         </View>
       </View>
@@ -188,6 +193,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingLeft: 16,
     paddingBottom: 16,
+    overflow: 'hidden',
   },
   actionCardImage: {
     position: 'absolute',
@@ -210,7 +216,7 @@ const styles = StyleSheet.create({
   },
   actionCardContent: {
     padding: 16,
-    paddingTop: 28,
+    paddingTop: 12,
   },
   actionCardTitle: {
     fontSize: 16,

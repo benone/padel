@@ -3,12 +3,13 @@ import { View } from 'react-native';
 import { ActionCard } from '../ui';
 import { images, colors, spacing } from '../../constants';
 import { getCardWidth } from '../../utils';
+import { getGeneratedImageUrl } from '../../config/api.config';
 
 const ACTION_CARDS_CONFIG = [
   {
     title: 'Забронировать корт',
     subtitle: 'Если вы уже знаете с кем будете играть',
-    image: images.courts.courtBg1,
+    image: getGeneratedImageUrl('professional woman playing padel tennis blue toned athletic pose', 300, 150),
     icon: 'search',
     backgroundColor: colors.primary[50],
     route: 'Booking',
