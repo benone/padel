@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './navigation/AppNavigator';
-import { colors } from './constants';
+import { colors, LINKING_CONFIG } from './constants';
 import { initializeAuth } from './services/api';
 import './global.css';
 
@@ -13,7 +13,7 @@ export default function App() {
   }, []);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={LINKING_CONFIG}>
       <AppNavigator />
       <StatusBar style="light" backgroundColor={colors.status.bar} />
     </NavigationContainer>

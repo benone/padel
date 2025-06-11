@@ -3,3 +3,4 @@ export * from './theme';
 export * from './navigation';
 export * from './assets';
 export * from './booking';
+export * from './linking';
