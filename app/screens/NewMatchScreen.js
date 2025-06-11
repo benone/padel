@@ -10,8 +10,10 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Chip, Avatar } from '../components/ui';
+import { useCanGoBack } from '../hooks';
 
 export default function NewMatchScreen({ navigation, route }) {
+  const { canGoBack, goBack } = useCanGoBack();
   const { venueType } = route.params || {};
   const [selectedSport, setSelectedSport] = useState('Падел');
   const [selectedPlayers, setSelectedPlayers] = useState(4);
@@ -58,7 +60,7 @@ export default function NewMatchScreen({ navigation, route }) {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={goBack}>
           <Ionicons name="arrow-back" size={24} color="#1f2937" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Новый матч</Text>

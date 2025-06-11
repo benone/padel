@@ -16,8 +16,10 @@ import { Chip, Avatar, Badge, Button } from '../components/ui';
 import VenueSelectionModal from './VenueSelectionModal';
 import { matchesAPI, clubsAPI, authAPI } from '../services/api';
 import { getImageUrl } from '../config/api.config';
+import { useCanGoBack } from '../hooks';
 
 export default function OpenMatchesScreen({ navigation }) {
+  const { canGoBack, goBack } = useCanGoBack();
   const [selectedSport, setSelectedSport] = useState('Падел');
   const [selectedClubs, setSelectedClubs] = useState('2 клуба');
   const [selectedDate, setSelectedDate] = useState('Сб-Вс-Пн, 07');
@@ -206,7 +208,7 @@ export default function OpenMatchesScreen({ navigation }) {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={goBack}>
           <Ionicons name="arrow-back" size={24} color="#1f2937" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Доступные</Text>

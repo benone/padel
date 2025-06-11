@@ -13,8 +13,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { Avatar, Badge, Button } from '../components/ui';
 import { matchesAPI, authAPI } from '../services/api';
 import { getStaticImageUrl, getImageUrl } from '../config/api.config';
+import { useCanGoBack } from '../hooks';
 
 export default function MatchDetailsScreen({ navigation, route }) {
+  const { canGoBack, goBack } = useCanGoBack();
   const { matchId } = route.params || {};
   const [matchData, setMatchData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -120,7 +122,7 @@ export default function MatchDetailsScreen({ navigation, route }) {
           <View style={styles.headerControls}>
             <TouchableOpacity 
               style={styles.headerButton}
-              onPress={() => navigation.goBack()}
+              onPress={goBack}
             >
               <Ionicons name="arrow-back" size={24} color="#1f2937" />
             </TouchableOpacity>

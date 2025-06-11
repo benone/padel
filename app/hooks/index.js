@@ -2,3 +2,4 @@
 export * from './useHeaderTap';
 export * from './useParallax';
 export * from './useTabAnimation';
+export * from './useCanGoBack';
