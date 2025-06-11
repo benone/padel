@@ -1,4 +1,6 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const router = express.Router();
 const { sports, timeSlots } = require('../data/mockData');
 const { sendSuccess, sendError, simulateDelay } = require('../utils/responseHelper');
@@ -107,7 +109,7 @@ router.get('/popular-venues', async (req, res) => {
     const popularVenues = [
       {
         id: 'club_123',
-        name: 'Теннисный клуб Олимп',
+        name: 'Сеть падел клубов «Padel Star»',
         rating: 4.8,
         bookingsThisWeek: 127,
         distance: lat && lng ? 2.3 : null,
@@ -204,7 +206,7 @@ router.get('/search-suggestions', async (req, res) => {
     
     if (type === 'all' || type === 'clubs') {
       suggestions.push(
-        { type: 'club', id: 'club_123', name: 'Теннисный клуб Олимп', address: 'ул. Спортивная, 15' },
+        { type: 'club', id: 'club_123', name: 'Сеть падел клубов «Padel Star»', address: 'ул. Дачная, 25, п. Нагорный' },
         { type: 'club', id: 'club_456', name: 'Спорт Арена', address: 'пр. Победы, 42' }
       );
     }
@@ -234,6 +236,66 @@ router.get('/search-suggestions', async (req, res) => {
     }, 'Search suggestions retrieved successfully');
   } catch (error) {
     sendError(res, 'Failed to retrieve search suggestions', 500, error);
+  }
+});
+
+// Clear image cache directory
+router.post('/clear-cache', async (req, res) => {
+  try {
+    const cacheDir = path.join(__dirname, '..', 'cache');
+    const blobsDir = path.join(cacheDir, 'blobs');
+    const imagesDir = path.join(cacheDir, 'images');
+    
+    let deletedFiles = 0;
+    let errors = [];
+    
+    // Clear blobs cache
+    if (fs.existsSync(blobsDir)) {
+      const blobFiles = fs.readdirSync(blobsDir);
+      for (const file of blobFiles) {
+        if (file !== '.gitkeep') {
+          try {
+            fs.unlinkSync(path.join(blobsDir, file));
+            deletedFiles++;
+          } catch (err) {
+            errors.push(`Failed to delete blob file ${file}: ${err.message}`);
+          }
+        }
+      }
+    }
+    
+    // Clear images cache
+    if (fs.existsSync(imagesDir)) {
+      const imageFiles = fs.readdirSync(imagesDir);
+      for (const file of imageFiles) {
+        if (file !== '.gitkeep') {
+          try {
+            fs.unlinkSync(path.join(imagesDir, file));
+            deletedFiles++;
+          } catch (err) {
+            errors.push(`Failed to delete image file ${file}: ${err.message}`);
+          }
+        }
+      }
+    }
+    
+    console.log(`🗑️ Cache cleared: ${deletedFiles} files deleted`);
+    
+    if (errors.length > 0) {
+      sendSuccess(res, { 
+        deletedFiles, 
+        errors,
+        message: `Cache partially cleared: ${deletedFiles} files deleted with ${errors.length} errors` 
+      }, 'Cache partially cleared');
+    } else {
+      sendSuccess(res, { 
+        deletedFiles,
+        message: `Cache cleared successfully: ${deletedFiles} files deleted`
+      }, 'Cache cleared successfully');
+    }
+  } catch (error) {
+    console.error('Cache clearing error:', error);
+    sendError(res, 'Failed to clear cache', 500, error);
   }
 });
 

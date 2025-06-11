@@ -739,10 +739,7 @@ router.get('/api/static-images/:category/:imageName', async (request) => {
   });
 });
 
-// In-memory cache for generated images (simple cache for Workers)
-const imageCache = new Map();
-
-// AI Image generation endpoint with caching
+// AI Image generation endpoint with caching using Cache API
 router.get('/api/images-simple/generate', async (request) => {
   try {
     const url = new URL(request.url);
@@ -760,22 +757,26 @@ router.get('/api/images-simple/generate', async (request) => {
     width = Math.min(2048, width);
     height = Math.min(2048, height);
 
-    // Create cache key based on prompt and parameters
+    // Create cache key and URL for Cache API
     const encoder = new TextEncoder();
     const data = encoder.encode(`${prompt}_${width}_${height}`);
     const hashBuffer = await crypto.subtle.digest('MD5', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const cacheKey = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    const cacheUrl = `https://cache.example.com/images/${cacheKey}`;
 
-    // Check cache first
-    if (imageCache.has(cacheKey)) {
-      const cached = imageCache.get(cacheKey);
+    // Check Cache API first
+    const cache = caches.default;
+    const cachedResponse = await cache.match(cacheUrl);
+    
+    if (cachedResponse) {
+      const cachedData = await cachedResponse.json();
       console.log(`🎯 Cache hit for prompt: "${prompt}"`);
       
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': cached.imageUrl,
+          'Location': cachedData.imageUrl,
           'Cache-Control': 'public, max-age=31536000',
           'X-Cache-Hit': 'true',
           'X-Generated-For': prompt,
@@ -861,16 +862,24 @@ router.get('/api/images-simple/generate', async (request) => {
     }
     console.log(`✅ Image generated: ${imageUrl}`);
 
-    // Cache the result (simple in-memory cache, limited to prevent memory issues)
-    if (imageCache.size < 100) {  // Limit cache size
-      imageCache.set(cacheKey, {
-        imageUrl,
-        prompt,
-        width,
-        height,
-        generatedAt: new Date().toISOString()
-      });
-    }
+    // Cache the result using Cache API
+    const cacheData = {
+      imageUrl,
+      prompt,
+      width,
+      height,
+      generatedAt: new Date().toISOString()
+    };
+    
+    const cacheResponse = new Response(JSON.stringify(cacheData), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=31536000'
+      }
+    });
+    
+    await cache.put(cacheUrl, cacheResponse);
+    console.log(`💾 Cached result for key: ${cacheKey}`);
 
     // Return redirect to the generated image
     return new Response(null, {
@@ -890,6 +899,25 @@ router.get('/api/images-simple/generate', async (request) => {
   } catch (error) {
     console.error('❌ AI generation error:', error);
     return sendError('AI image generation failed', 500, error);
+  }
+});
+
+// Clear image cache endpoint
+router.post('/api/clear-cache', async (request) => {
+  try {
+    // Note: Cache API doesn't provide a direct way to clear all entries
+    // This endpoint exists for compatibility but Cache API entries expire naturally
+    console.log(`🗑️ Cache clear requested - Cache API entries will expire based on TTL`);
+    
+    return sendSuccess({
+      message: 'Cache clear requested. Cache API entries will expire naturally based on TTL (max-age=31536000)',
+      cacheType: 'Cache API',
+      note: 'Individual cache entries expire automatically after 1 year or can be purged via Cloudflare Dashboard'
+    }, 'Cache clear request processed');
+    
+  } catch (error) {
+    console.error('❌ Cache clearing error:', error);
+    return sendError('Failed to process cache clear request', 500, error);
   }
 });
 

@@ -193,7 +193,7 @@ router.get('/:userId/clubs', async (req, res) => {
     const clubs = [
       {
         id: "club_123",
-        name: "Теннисный клуб Олимп",
+        name: "Сеть падел клубов «Padel Star»",
         membershipType: "Premium",
         joinDate: "2023-06-15",
         status: "active"
@@ -227,8 +227,8 @@ router.get('/:userId/bookings', authenticateToken, async (req, res) => {
         status: "confirmed",
         club: {
           id: "club_123",
-          name: "Теннисный клуб Олимп",
-          address: "ул. Спортивная, 15"
+          name: "Сеть падел клубов «Padel Star»",
+          address: "ул. Дачная, 25, п. Нагорный"
         },
         court: {
           id: "court_2",
@@ -247,8 +247,8 @@ router.get('/:userId/bookings', authenticateToken, async (req, res) => {
         status: "upcoming",
         club: {
           id: "club_123",
-          name: "Теннисный клуб Олимп",
-          address: "ул. Спортивная, 15"
+          name: "Сеть падел клубов «Padel Star»",
+          address: "ул. Дачная, 25, п. Нагорный"
         },
         court: {
           id: "court_1",

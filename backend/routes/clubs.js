@@ -155,7 +155,7 @@ router.get('/:clubId/reviews', async (req, res) => {
         user: {
           id: 'user_456',
           name: 'Алексей П.',
-          avatar: '${BASE_URL}/api/images-simple/generate?prompt=professional%20padel%20player%20male%20reviewer%20headshot%20portrait&width=50&height=50'
+          avatar: '${BASE_URL}/api/images-simple/generate?prompt=very%20realistic%20professional%20padel%20player%20male%20reviewer%20headshot%20portrait&width=50&height=50'
         },
         rating: 5,
         comment: 'Отличный клуб! Корты в прекрасном состоянии, персонал дружелюбный.',
@@ -167,7 +167,7 @@ router.get('/:clubId/reviews', async (req, res) => {
         user: {
           id: 'user_789',
           name: 'Мария И.',
-          avatar: '${BASE_URL}/api/images-simple/generate?prompt=professional%20female%20padel%20player%20reviewer%20headshot%20portrait&width=50&height=50'
+          avatar: '${BASE_URL}/api/images-simple/generate?prompt=very%20realistic%20professional%20female%20padel%20player%20reviewer%20headshot%20portrait&width=50&height=50'
         },
         rating: 4,
         comment: 'Хорошие корты, но парковка иногда переполнена в выходные.',

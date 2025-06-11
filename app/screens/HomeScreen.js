@@ -28,28 +28,28 @@ export default function HomeScreen({ navigation }) {
       ]
     );
   };
-  
+
   return (
     <ScrollView className="flex-1 bg-gray-50">
       <View style={{ padding: spacing.md }}>
         <HomeHeader onTap={handleHeaderTap} />
         <ActionCardPair navigation={navigation} />
-        
+
         {/* Training with Coach Section */}
         <View style={{ marginTop: spacing.md }}>
           <ActionCard
             title="Занятия с тренером"
             subtitle="Улучшите свою технику с профессионалом"
-            image={getGeneratedImageUrl('man playing padel tennis bright green court professional training', 600, 200)}
+            image={getGeneratedImageUrl('very realistic man playing padel tennis bright green court professional training', 600, 200)}
             icon="school"
             iconColor="#f59e0b"
             onPress={() => Alert.alert('Занятия с тренером', 'Функция скоро будет доступна')}
             style={{ width: '100%' }}
           />
         </View>
-        
+
         {/* Invite Friends Section */}
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={handleInviteFriends}
           style={{
             backgroundColor: 'white',

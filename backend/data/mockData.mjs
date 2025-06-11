@@ -11,7 +11,7 @@ const users = [
     email: "kirill.romanov@example.com",
     phone: "+7 (999) 123-45-67",
     name: "Кирилл Романов",
-    avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20businessman%20headshot%20portrait&width=100&height=100`,
+    avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20businessman%20headshot%20portrait&width=100&height=100`,
     level: 7.5,
     levelName: "Продвинутый",
     location: {
@@ -45,7 +45,7 @@ const users = [
     email: "alexey.petrov@example.com",
     phone: "+7 (999) 234-56-78",
     name: "Алексей Петров",
-    avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
+    avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
     level: 7.2,
     levelName: "Продвинутый",
     location: {
@@ -114,21 +114,23 @@ const users = [
 const clubs = [
   {
     id: "club_123",
-    name: "Теннисный клуб Олимп",
-    description: "Современный спортивный комплекс с профессиональными кортами для падела и тенниса",
+    name: "Сеть падел клубов «Padel Star»",
+    description: "Современный падел клуб для взрослых и детей от 5 лет. Персональные и групповые тренировки с опытными тренерами. Падел - это спорт, который сочетает элементы тенниса, сквоша и пинг-понга.",
     address: {
-      street: "ул. Спортивная, 15",
-      city: "Москва",
-      district: "Центральный район",
+      street: "ул. Дачная, 25",
+      city: "п. Нагорный",
+      district: "Нагорный",
       coordinates: {
         lat: 55.7558,
         lng: 37.6176
       }
     },
     contact: {
-      phone: "+7 (495) 123-45-67",
-      email: "info@olimp-club.ru",
-      website: "https://olimp-club.ru"
+      phone: "+7 (800) 222-96-76",
+      mobilePhone: "+7 (921) 874-91-17",
+      email: "info@padelstar.ru",
+      website: "https://padelstarclub.ru",
+      telegram: "@padelstar76"
     },
     images: [
       `${baseUrl}/api/static-images/court-background-1`,
@@ -139,31 +141,29 @@ const clubs = [
         name: "Падел",
         courts: 4,
         pricePerHour: 2500
-      },
-      {
-        name: "Теннис",
-        courts: 6,
-        pricePerHour: 3000
       }
     ],
     amenities: {
       parking: true,
       wheelchairAccessible: true,
-      cafe: true,
+      cafe: false,
       lockerRoom: true,
       shower: true,
       equipment: true,
       lighting: "LED",
-      surface: "Искусственная трава"
+      surface: "Искусственная трава",
+      training: true,
+      kidsPrograms: true,
+      beginnerFriendly: true
     },
     workingHours: {
-      monday: { open: "07:00", close: "23:00" },
-      tuesday: { open: "07:00", close: "23:00" },
-      wednesday: { open: "07:00", close: "23:00" },
-      thursday: { open: "07:00", close: "23:00" },
-      friday: { open: "07:00", close: "23:00" },
-      saturday: { open: "08:00", close: "22:00" },
-      sunday: { open: "08:00", close: "22:00" }
+      monday: { open: "08:00", close: "23:00" },
+      tuesday: { open: "08:00", close: "23:00" },
+      wednesday: { open: "08:00", close: "23:00" },
+      thursday: { open: "08:00", close: "23:00" },
+      friday: { open: "08:00", close: "23:00" },
+      saturday: { open: "08:00", close: "23:00" },
+      sunday: { open: "08:00", close: "23:00" }
     },
     rating: 4.8,
     reviewCount: 324,
@@ -241,10 +241,10 @@ const matches = [
     description: "Дружеская игра в падел для игроков среднего уровня. Приглашаем активных и позитивных игроков!",
     club: {
       id: "club_123",
-      name: "Теннисный клуб Олимп",
-      address: "ул. Спортивная, 15",
+      name: "Сеть падел клубов «Padel Star»",
+      address: "ул. Дачная, 25, п. Нагорный",
       distance: 2.3,
-      phone: "+7 (495) 123-45-67",
+      phone: "+7 (800) 222-96-76",
       coordinates: {
         lat: 55.7558,
         lng: 37.6176
@@ -253,7 +253,7 @@ const matches = [
     organizer: {
       id: "user_456",
       name: "Алексей Петров",
-      avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
+      avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
       level: 7.2,
       matchesPlayed: 43,
       rating: 4.9
@@ -262,7 +262,7 @@ const matches = [
       {
         id: "user_456",
         name: "Алексей Петров",
-        avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
         level: 7.2,
         confirmed: true,
         role: "organizer"
@@ -314,7 +314,7 @@ const matches = [
     organizer: {
       id: "user_102",
       name: "Дмитрий Козлов",
-      avatar: `${baseUrl}/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100`,
+      avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100`,
       level: 8.1
     },
     players: [
@@ -379,7 +379,7 @@ const matches = [
       {
         id: "user_456",
         name: "Алексей Петров",
-        avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
         level: 7.2,
         confirmed: true,
         role: "player"
@@ -387,7 +387,7 @@ const matches = [
       {
         id: "user_103",
         name: "Елена Соколова",
-        avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20female%20padel%20player%20headshot%20portrait&width=100&height=100`,
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20female%20padel%20player%20headshot%20portrait&width=100&height=100`,
         level: 6.5,
         confirmed: true,
         role: "player"
@@ -441,7 +441,7 @@ const matches = [
     organizer: {
       id: "user_test",
       name: "Начинающий Игрок",
-      avatar: `${baseUrl}/api/images-simple/generate?prompt=young%20athlete%20beginner%20headshot%20portrait&width=100&height=100`,
+      avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20young%20athlete%20beginner%20headshot%20portrait&width=100&height=100`,
       level: 5.0,
       matchesPlayed: 5,
       rating: 4.2
@@ -450,7 +450,7 @@ const matches = [
       {
         id: "user_test",
         name: "Начинающий Игрок",
-        avatar: `${baseUrl}/api/images-simple/generate?prompt=young%20athlete%20beginner%20headshot%20portrait&width=100&height=100`,
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20young%20athlete%20beginner%20headshot%20portrait&width=100&height=100`,
         level: 5.0,
         confirmed: true,
         role: "organizer"
@@ -458,7 +458,7 @@ const matches = [
       {
         id: "user_104",
         name: "Анна Петрова",
-        avatar: `${baseUrl}/api/images-simple/generate?prompt=young%20female%20padel%20beginner%20headshot%20portrait&width=100&height=100`,
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20young%20female%20padel%20beginner%20headshot%20portrait&width=100&height=100`,
         level: 4.8,
         confirmed: true,
         role: "player"
@@ -513,7 +513,7 @@ const matches = [
     organizer: {
       id: "user_105",
       name: "Владимир Мастер",
-      avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20coach%20expert%20male%20headshot%20portrait&width=100&height=100`,
+      avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20padel%20coach%20expert%20male%20headshot%20portrait&width=100&height=100`,
       level: 9.2,
       matchesPlayed: 156,
       rating: 4.95
@@ -522,7 +522,7 @@ const matches = [
       {
         id: "user_105",
         name: "Владимир Мастер",
-        avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20coach%20expert%20male%20headshot%20portrait&width=100&height=100`,
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20padel%20coach%20expert%20male%20headshot%20portrait&width=100&height=100`,
         level: 9.2,
         confirmed: true,
         role: "organizer"
@@ -578,7 +578,7 @@ const matches = [
     organizer: {
       id: "user_106",
       name: "Ирина Волкова",
-      avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20female%20padel%20champion%20headshot%20portrait&width=100&height=100`,
+      avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20female%20padel%20champion%20headshot%20portrait&width=100&height=100`,
       level: 8.3,
       matchesPlayed: 89,
       rating: 4.85
@@ -587,7 +587,7 @@ const matches = [
       {
         id: "user_106",
         name: "Ирина Волкова",
-        avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20female%20padel%20champion%20headshot%20portrait&width=100&height=100`,
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20female%20padel%20champion%20headshot%20portrait&width=100&height=100`,
         level: 8.3,
         confirmed: true,
         role: "organizer"
@@ -595,7 +595,7 @@ const matches = [
       {
         id: "user_103",
         name: "Елена Соколова",
-        avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20female%20padel%20player%20headshot%20portrait&width=100&height=100`,
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20female%20padel%20player%20headshot%20portrait&width=100&height=100`,
         level: 6.5,
         confirmed: true,
         role: "player"
@@ -619,7 +619,7 @@ users.push({
   email: "test@example.com",
   phone: "+7 (999) 000-00-00",
   name: "", // Empty name
-  avatar: `${baseUrl}/api/images-simple/generate?prompt=young%20athlete%20beginner%20headshot%20portrait&width=100&height=100`, // AI generated test user
+  avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20young%20athlete%20beginner%20headshot%20portrait&width=100&height=100`, // AI generated test user
   level: 5.0,
   levelName: "Начинающий",
   location: {
@@ -655,7 +655,7 @@ users.push({
   email: "dmitry.kozlov@example.com",
   phone: "+7 (999) 555-12-34",
   name: "Дмитрий Козлов",
-  avatar: `${baseUrl}/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100`,
+  avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100`,
   level: 8.1,
   levelName: "Эксперт",
   location: {
@@ -691,7 +691,7 @@ users.push({
   email: "elena.sokolova@example.com",
   phone: "+7 (999) 666-77-88",
   name: "Елена Соколова",
-  avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20female%20padel%20player%20headshot%20portrait&width=100&height=100`,
+  avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20female%20padel%20player%20headshot%20portrait&width=100&height=100`,
   level: 6.5,
   levelName: "Средний",
   location: {
@@ -726,7 +726,7 @@ users.push({
   email: "anna.petrova@example.com",
   phone: "+7 (999) 777-88-99",
   name: "Анна Петрова",
-  avatar: `${baseUrl}/api/images-simple/generate?prompt=young%20female%20padel%20beginner%20headshot%20portrait&width=100&height=100`,
+  avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20young%20female%20padel%20beginner%20headshot%20portrait&width=100&height=100`,
   level: 4.8,
   levelName: "Начинающий",
   location: {
@@ -761,7 +761,7 @@ users.push({
   email: "vladimir.master@example.com",
   phone: "+7 (999) 888-99-00",
   name: "Владимир Мастер",
-  avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20coach%20expert%20male%20headshot%20portrait&width=100&height=100`,
+  avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20padel%20coach%20expert%20male%20headshot%20portrait&width=100&height=100`,
   level: 9.2,
   levelName: "Мастер",
   location: {
@@ -796,7 +796,7 @@ users.push({
   email: "irina.volkova@example.com",
   phone: "+7 (999) 999-00-11",
   name: "Ирина Волкова",
-  avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20female%20padel%20champion%20headshot%20portrait&width=100&height=100`,
+  avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20female%20padel%20champion%20headshot%20portrait&width=100&height=100`,
   level: 8.3,
   levelName: "Эксперт",
   location: {
@@ -834,9 +834,9 @@ const bookings = [
     status: "confirmed",
     club: {
       id: "club_123",
-      name: "Теннисный клуб Олимп",
-      address: "ул. Спортивная, 15",
-      phone: "+7 (495) 123-45-67"
+      name: "Сеть падел клубов «Padel Star»",
+      address: "ул. Дачная, 25, п. Нагорный",
+      phone: "+7 (800) 222-96-76"
     },
     court: {
       id: "court_2",
@@ -975,14 +975,14 @@ const generateMatchHistory = (userId, limit = 10) => {
       score: Math.random() > 0.5 ? "6-3, 6-4" : "4-6, 3-6",
       club: {
         id: "club_123",
-        name: "Теннисный клуб Олимп",
-        location: "Москва, ул. Спортивная 15"
+        name: "Сеть падел клубов «Padel Star»",
+        location: "п. Нагорный, ул. Дачная 25"
       },
       partners: [
         {
           id: "user_456",
           name: "Алексей Петров",
-          avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
+          avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
           level: 7.0
         }
       ],
@@ -990,13 +990,13 @@ const generateMatchHistory = (userId, limit = 10) => {
         {
           id: "user_789",
           name: "Михаил Иванов",
-          avatar: `${baseUrl}/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100`,
+          avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100`,
           level: 6.5
         },
         {
           id: "user_101",
           name: "Дмитрий Сидоров",
-          avatar: `${baseUrl}/api/images-simple/generate?prompt=padel%20tennis%20player%20athlete%20male%20headshot%20portrait&width=100&height=100`,
+          avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20padel%20tennis%20player%20athlete%20male%20headshot%20portrait&width=100&height=100`,
           level: 7.2
         }
       ]
@@ -1035,14 +1035,14 @@ const generateUserStats = (userId, period = '6months') => {
       {
         id: "user_456",
         name: "Алексей Петров",
-        avatar: `${baseUrl}/api/images-simple/generate?prompt=professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20professional%20padel%20player%20male%20headshot%20portrait&width=100&height=100`,
         matchesPlayed: 12,
         winRate: 75
       },
       {
         id: "user_789",
         name: "Игорь Волков",
-        avatar: `${baseUrl}/api/images-simple/generate?prompt=experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100`,
+        avatar: `${baseUrl}/api/images-simple/generate?prompt=very%20realistic%20experienced%20padel%20player%20expert%20male%20headshot%20portrait&width=100&height=100`,
         matchesPlayed: 8,
         winRate: 62
       }
