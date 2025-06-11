@@ -18,6 +18,7 @@ export default function AppNavigator() {
       screenOptions={{
         headerShown: false,
         cardStyleInterpolator: NAVIGATION_CONFIG.cardStyleInterpolator,
+        cardStyle: { flex: 1 },
       }}
     >
       <Stack.Screen name={ROUTES.MAIN} component={TabNavigator} />
