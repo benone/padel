@@ -10,9 +10,20 @@ import NewMatchScreen from '../screens/NewMatchScreen';
 import ComponentsLibrary from '../components/ComponentsLibrary';
 import { ROUTES, NAVIGATION_CONFIG } from '../constants';
 
-const Stack = createStackNavigator();
+export type RootStackParamList = {
+  [ROUTES.MAIN]: undefined;
+  [ROUTES.BOOKING]: { clubId?: string };
+  [ROUTES.CLUB_HOME]: { clubId: string };
+  [ROUTES.PROFILE]: { userId?: string };
+  [ROUTES.OPEN_MATCHES]: undefined;
+  [ROUTES.MATCH_DETAILS]: { matchId: string };
+  [ROUTES.NEW_MATCH]: undefined;
+  [ROUTES.COMPONENTS_LIBRARY]: undefined;
+};
 
-export default function AppNavigator() {
+const Stack = createStackNavigator<RootStackParamList>();
+
+export default function AppNavigator(): React.JSX.Element {
   return (
     <Stack.Navigator
       screenOptions={{

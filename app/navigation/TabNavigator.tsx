@@ -7,9 +7,23 @@ import ProfileScreen from '../screens/ProfileScreen';
 import CustomHeader from '../components/CustomHeader';
 import { colors, spacing } from '../constants';
 
-const Tab = createBottomTabNavigator();
+export type TabParamList = {
+  Home: undefined;
+  Community: undefined;
+  Profile: undefined;
+};
 
-const TAB_CONFIG = {
+type TabName = keyof TabParamList;
+
+type TabConfig = {
+  title: string;
+  iconFocused: keyof typeof Ionicons.glyphMap;
+  iconOutline: keyof typeof Ionicons.glyphMap;
+};
+
+const Tab = createBottomTabNavigator<TabParamList>();
+
+const TAB_CONFIG: Record<TabName, TabConfig> = {
   Home: {
     title: 'Главная',
     iconFocused: 'home',
@@ -27,7 +41,12 @@ const TAB_CONFIG = {
   },
 };
 
-function TabIcon({ focused, name }) {
+interface TabIconProps {
+  focused: boolean;
+  name: TabName;
+}
+
+function TabIcon({ focused, name }: TabIconProps): React.JSX.Element {
   const config = TAB_CONFIG[name];
   const iconName = focused ? config.iconFocused : config.iconOutline;
   const iconColor = focused ? colors.primary[600] : colors.gray[400];
@@ -35,7 +54,7 @@ function TabIcon({ focused, name }) {
   return <Ionicons name={iconName} size={32} color={iconColor} />;
 }
 
-export default function TabNavigator() {
+export default function TabNavigator(): React.JSX.Element {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({

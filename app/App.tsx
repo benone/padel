@@ -6,7 +6,7 @@ import { colors, LINKING_CONFIG } from './constants';
 import { initializeAuth } from './services/api';
 import './global.css';
 
-export default function App() {
+export default function App(): React.JSX.Element {
   useEffect(() => {
     // Initialize authentication on app start
     initializeAuth();

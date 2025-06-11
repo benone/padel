@@ -6,8 +6,12 @@ import { ActionCard } from '../components/ui';
 import { useHeaderTap } from '../hooks/useHeaderTap';
 import { ROUTES, spacing, colors, images } from '../constants';
 import { getGeneratedImageUrl } from '../config/api.config';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { TabParamList } from '../navigation/TabNavigator';
 
-export default function HomeScreen({ navigation }) {
+type Props = BottomTabScreenProps<TabParamList, 'Home'>;
+
+export default function HomeScreen({ navigation }: Props): React.JSX.Element {
   const { handleHeaderTap } = useHeaderTap(() => {
     navigation.navigate(ROUTES.COMPONENTS_LIBRARY);
   });

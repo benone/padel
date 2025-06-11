@@ -1,6 +1,20 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, View, TouchableOpacityProps, TextStyle, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+
+type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'icon';
+type ButtonSize = 'small' | 'medium' | 'large';
+
+interface ButtonProps extends Omit<TouchableOpacityProps, 'style'> {
+  title: string;
+  onPress: () => void;
+  variant?: ButtonVariant;
+  icon?: keyof typeof Ionicons.glyphMap;
+  disabled?: boolean;
+  size?: ButtonSize;
+  style?: ViewStyle;
+  textStyle?: TextStyle;
+}
 
 export default function Button({ 
   title, 
@@ -12,7 +26,7 @@ export default function Button({
   style = {},
   textStyle = {},
   ...props 
-}) {
+}: ButtonProps): React.JSX.Element {
   const getButtonStyle = () => {
     const baseStyle = [styles.button, styles[`${variant}Button`], styles[`${size}Button`]];
     if (disabled) baseStyle.push(styles.disabledButton);

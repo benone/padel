@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
-import { View, Image, Text, StyleSheet } from 'react-native';
+import { View, Image, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+
+interface AvatarProps {
+  uri?: string;
+  initials?: string;
+  size?: 'small' | 'medium' | 'large' | number;
+  borderColor?: string;
+  online?: boolean;
+  showStatus?: boolean;
+  showDefaultIcon?: boolean;
+  style?: ViewStyle;
+  [key: string]: any;
+}
 
 export default function Avatar({ 
   uri, 
@@ -12,7 +24,7 @@ export default function Avatar({
   showDefaultIcon = false,
   style = {},
   ...props 
-}) {
+}: AvatarProps): React.JSX.Element {
   const getAvatarSize = () => {
     switch (size) {
       case 'small': return 40;
@@ -56,7 +68,7 @@ export default function Avatar({
   };
 
   const statusStyle = {
-    position: 'absolute',
+    position: 'absolute' as const,
     bottom: 2,
     right: 2,
     width: statusSize,
@@ -70,14 +82,14 @@ export default function Avatar({
   const initialsStyle = {
     ...avatarStyle,
     backgroundColor: '#1f2937',
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
     borderWidth: 0,
   };
 
   const initialsTextStyle = {
     fontSize: fontSize,
-    fontWeight: '700',
+    fontWeight: '700' as const,
     color: 'white',
   };
 

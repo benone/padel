@@ -2,8 +2,65 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '@env';
 
+// Types
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  profilePicture?: string;
+  level?: string;
+  location?: string;
+  stats?: UserStats;
+}
+
+export interface UserStats {
+  matchesPlayed: number;
+  winRate: number;
+  totalHours: number;
+  favoritePosition: string;
+}
+
+export interface Match {
+  id: string;
+  clubId: string;
+  clubName: string;
+  date: string;
+  time: string;
+  duration: number;
+  players: User[];
+  maxPlayers: number;
+  level: string;
+  cost: number;
+  description?: string;
+  isOpen: boolean;
+}
+
+export interface Club {
+  id: string;
+  name: string;
+  address: string;
+  courts: number;
+  pricePerHour: number;
+  rating: number;
+  image?: string;
+  amenities: string[];
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+}
+
 // API Configuration
-const API_CONFIG = {
+interface ApiConfig {
+  baseURL: string;
+  timeout: number;
+  headers: Record<string, string>;
+}
+
+const API_CONFIG: ApiConfig = {
   baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
@@ -20,10 +77,14 @@ console.log('🔧 Is production build:', !__DEV__);
 const STORAGE_KEYS = {
   AUTH_TOKEN: '@padel_auth_token',
   USER_DATA: '@padel_user_data',
-};
+} as const;
 
 // API Client class
 class ApiClient {
+  private baseURL: string;
+  private timeout: number;
+  private defaultHeaders: Record<string, string>;
+
   constructor() {
     this.baseURL = API_CONFIG.baseURL;
     this.timeout = API_CONFIG.timeout;
@@ -31,7 +92,7 @@ class ApiClient {
   }
 
   // Get auth token from storage
-  async getAuthToken() {
+  async getAuthToken(): Promise<string | null> {
     try {
       return await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
     } catch (error) {
@@ -41,7 +102,7 @@ class ApiClient {
   }
 
   // Set auth token in storage
-  async setAuthToken(token) {
+  async setAuthToken(token: string | null): Promise<void> {
     try {
       if (token) {
         await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
@@ -54,17 +115,17 @@ class ApiClient {
   }
 
   // Generic request method
-  async request(endpoint, options = {}) {
+  async request<T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
     const token = await this.getAuthToken();
 
-    const headers = {
+    const headers: Record<string, string> = {
       ...this.defaultHeaders,
       ...(options.headers || {}),
     };
 
     if (token) {
-      headers.Authorization = `Bearer ${token}`;
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     const config = {
