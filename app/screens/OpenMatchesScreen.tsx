@@ -58,7 +58,43 @@ export default function OpenMatchesScreen({ navigation }) {
         limit: 20
       });
 
-      setMatches(response.data.matches || []);
+      console.log('🔧 DEBUG - API Response structure:', {
+        hasData: !!response.data,
+        dataType: Array.isArray(response.data) ? 'array' : typeof response.data,
+        dataLength: Array.isArray(response.data) ? response.data.length : 'N/A',
+        hasDataProperty: response.data?.data ? 'yes' : 'no',
+        dataKeys: response.data ? Object.keys(response.data) : 'none'
+      });
+
+      // Handle both possible response structures
+      let matchesData = [];
+      let fullResponse = response.data;
+      
+      if (response.data?.data && Array.isArray(response.data.data)) {
+        // JSONAPI format: { data: [...] }
+        matchesData = response.data.data;
+      } else if (Array.isArray(response.data)) {
+        // Direct array format: [...]
+        matchesData = response.data;
+        fullResponse = { data: response.data }; // Normalize structure
+      } else if (response.data?.matches && Array.isArray(response.data.matches)) {
+        // Legacy format: { matches: [...] }
+        matchesData = response.data.matches;
+        fullResponse = { data: response.data.matches }; // Normalize structure
+      }
+
+      // Attach the full response context to each match for relationships/included data
+      const matchesWithContext = matchesData.map(match => ({
+        ...match,
+        _fullResponse: fullResponse
+      }));
+
+      console.log('🔧 DEBUG - Processed matches:', {
+        matchesCount: matchesWithContext.length,
+        firstMatch: matchesWithContext[0] || 'none'
+      });
+
+      setMatches(matchesWithContext);
     } catch (error) {
       console.error('Failed to load matches:', error);
       Alert.alert('Ошибка', 'Не удалось загрузить матчи');
@@ -95,7 +131,11 @@ export default function OpenMatchesScreen({ navigation }) {
   };
 
   const renderMatch = (match) => {
-    const matchDate = new Date(match.date);
+    // Handle both JSONAPI format and legacy format
+    const attrs = match.attributes || match;
+    const matchId = match.id || attrs.id;
+    
+    const matchDate = new Date(attrs.match_date || attrs.date);
     const formattedDate = matchDate.toLocaleDateString('ru-RU', {
       weekday: 'long',
       day: 'numeric',
@@ -106,14 +146,82 @@ export default function OpenMatchesScreen({ navigation }) {
       minute: '2-digit'
     });
 
-    const levelRange = `${match.levelRange[0]} - ${match.levelRange[1]}`;
-    const competitiveText = match.competitive ? 'Соревновательный' : 'Дружеский';
+    // For now, use placeholder data for missing fields in JSONAPI response
+    const levelRange = attrs.levelRange 
+      ? `${attrs.levelRange[0]} - ${attrs.levelRange[1]}` 
+      : `${attrs.level_min || '6.0'} - ${attrs.level_max || '8.0'}`;
+    const competitiveText = attrs.competitive ? 'Соревновательный' : 'Дружеский';
+
+    // Extract player information from relationships and included data
+    const players = [];
+    const fullResponse = match._fullResponse || {};
+    const included = fullResponse.included || [];
+    const addedPlayerIds = new Set(); // Track added players to prevent duplicates
+    
+    // Add organizer if available
+    if (match.relationships?.organizer?.data) {
+      const organizerId = match.relationships.organizer.data.id;
+      const organizerData = included.find(item => 
+        item.type === 'players' && item.id === organizerId
+      );
+      
+      if (organizerData && !addedPlayerIds.has(organizerId)) {
+        players.push({
+          id: organizerData.id,
+          name: organizerData.attributes.name,
+          level: parseFloat(organizerData.attributes.level),
+          avatar: organizerData.attributes.avatar_url,
+          isOrganizer: true
+        });
+        addedPlayerIds.add(organizerId);
+      }
+    }
+    
+    // Add participants if any (skip if already added as organizer)
+    if (match.relationships?.participants?.data) {
+      match.relationships.participants.data.forEach(participant => {
+        const participantData = included.find(item => 
+          item.type === 'players' && item.id === participant.id
+        );
+        
+        if (participantData && !addedPlayerIds.has(participant.id)) {
+          players.push({
+            id: participantData.id,
+            name: participantData.attributes.name,
+            level: parseFloat(participantData.attributes.level),
+            avatar: participantData.attributes.avatar_url,
+            isOrganizer: false
+          });
+          addedPlayerIds.add(participant.id);
+        }
+      });
+    }
+    
+    // For display purposes, show at least one player (organizer) if no participants yet
+    if (players.length === 0) {
+      // If no organizer data, create a placeholder
+      players.push({
+        id: 'organizer-placeholder',
+        name: 'Организатор',
+        level: 7.0,
+        avatar: null,
+        isOrganizer: true
+      });
+    }
+    
+    console.log('🔧 DEBUG - Match players:', {
+      matchId: matchId,
+      playersCount: players.length,
+      players: players.map(p => ({ id: p.id, name: p.name, isOrganizer: p.isOrganizer }))
+    });
+
+    const playersNeeded = attrs.players_needed || attrs.spots_available || 2;
 
     return (
       <TouchableOpacity
-        key={match.id}
+        key={matchId}
         style={styles.matchCard}
-        onPress={() => navigation.navigate('MatchDetails', { matchId: match.id })}
+        onPress={() => navigation.navigate('MatchDetails', { matchId: matchId })}
       >
         <View style={styles.matchHeader}>
           <Text style={styles.matchDate}>{formattedDate} | {formattedTime}</Text>
@@ -131,7 +239,7 @@ export default function OpenMatchesScreen({ navigation }) {
         </View>
 
         <View style={styles.playersContainer}>
-          {match.players.map((player, index) => {
+          {players.map((player, index) => {
             const isCurrentUser = currentUser && (player.id === currentUser.id || player.isCurrentUser);
             const isWaiting = player.status === 'waiting' || player.waiting;
 
@@ -156,7 +264,7 @@ export default function OpenMatchesScreen({ navigation }) {
                       <Text style={styles.waitingIcon}>⏳</Text>
                     </View>
                   ) : (
-                    <Badge text={player.level?.toFixed(2) || '0.00'} type="level" size="small" />
+                    <Badge text={player.level?.toFixed(1) || '6.5'} type="level" size="small" />
                   )}
                 </TouchableOpacity>
               </View>
@@ -164,14 +272,14 @@ export default function OpenMatchesScreen({ navigation }) {
           })}
 
           {/* Show available spots */}
-          {Array.from({ length: match.playersNeeded }, (_, index) => {
-            const isLastSlot = index === match.playersNeeded - 1 && match.playersNeeded === 1;
+          {Array.from({ length: playersNeeded }, (_, index) => {
+            const isLastSlot = index === playersNeeded - 1 && playersNeeded === 1;
 
             return (
               <View key={`available-${index}`} style={styles.playerSlot}>
                 <TouchableOpacity
                   style={styles.availableSlot}
-                  onPress={() => handleJoinMatch(match.id)}
+                  onPress={() => handleJoinMatch(matchId)}
                 >
                   <View style={styles.plusIcon}>
                     <Text style={styles.plusText}>+</Text>
@@ -189,15 +297,35 @@ export default function OpenMatchesScreen({ navigation }) {
           <View style={styles.clubDetails}>
             <Text style={styles.clubIcon}>🏟️</Text>
             <View>
-              <Text style={styles.clubName}>{match.club?.name || 'Клуб'}</Text>
-              <Text style={styles.clubLocation}>
-                {match.club?.distance ? `${match.club.distance}км` : ''} • {match.club?.address || 'Адрес'}
-              </Text>
+              {(() => {
+                // Extract club information from included data
+                let clubName = 'Падел клуб';
+                let clubLocation = '2км • ул. Примерная, 123';
+                
+                if (match.relationships?.club?.data) {
+                  const clubId = match.relationships.club.data.id;
+                  const clubData = included.find(item => 
+                    item.type === 'clubs' && item.id === clubId
+                  );
+                  
+                  if (clubData) {
+                    clubName = clubData.attributes.name;
+                    clubLocation = clubData.attributes.description || 'Москва';
+                  }
+                }
+                
+                return (
+                  <>
+                    <Text style={styles.clubName}>{clubName}</Text>
+                    <Text style={styles.clubLocation}>{clubLocation}</Text>
+                  </>
+                );
+              })()}
             </View>
           </View>
           <View style={styles.matchMeta}>
-            <Text style={styles.matchPrice}>₽{match.price || '0'}</Text>
-            <Text style={styles.matchDuration}>{match.duration || 90}мин</Text>
+            <Text style={styles.matchPrice}>₽{attrs.price_per_person || '625'}</Text>
+            <Text style={styles.matchDuration}>{attrs.duration || 90}мин</Text>
           </View>
         </View>
       </TouchableOpacity>

@@ -108,14 +108,38 @@ npm start           # Start backend in production mode
 - `/api/static-images/*` - Static asset serving
 
 ### API Service Layer
-Frontend API integration follows a centralized service pattern:
+Frontend API integration is now fully based on generated TypeScript clients from OpenAPI specification:
 
 **Service Structure:**
-- `services/api.js` - Main API client with authentication handling
-- `services/imageAPI.js` - Separate image generation service (avoids circular deps)
+- `services/api.ts` - Main API service layer using generated PadelClubApi client
+- `services/imageAPI.ts` - Image generation service using generated client
+- `api/` - Generated TypeScript API client with models, services, and types
+- **Generated Client**: Direct usage of PadelClubApi class with all service methods
+- **Type Safety**: Full TypeScript support with generated types from OpenAPI spec
 - **Auto-login**: Development mode automatically logs in as mock user
-- **Token Management**: AsyncStorage-based JWT token persistence
-- **Error Handling**: Centralized error handling with timeouts and retry logic
+- **Token Management**: AsyncStorage-based JWT token persistence via OpenAPI.TOKEN
+- **Error Handling**: Centralized response handling with success/error patterns
+
+**Generated API Client:**
+- **Generation**: Use `./generate-api.sh` to regenerate client from OpenAPI spec
+- **Models**: Fully typed data models (User, Match, Club, Booking, Post, etc.)
+- **Services**: Type-safe service classes (PlayersService, MatchesService, ClubsService, etc.)
+- **Configuration**: Centralized configuration via OpenAPI.BASE and OpenAPI.TOKEN
+- **Direct Usage**: All API calls now use generated service methods directly
+
+**API Usage Patterns:**
+```typescript
+import { authAPI, matchesAPI, clubsAPI } from '../services/api';
+import { PadelClubApi, OpenAPI } from '../api';
+
+// Using service layer (recommended)
+const matches = await matchesAPI.getOpen();
+const clubs = await clubsAPI.search({ query: 'padel' });
+
+// Direct client usage (advanced)
+const apiClient = new PadelClubApi();
+const result = await apiClient.matches.getApiMatches();
+```
 
 ### Data Consistency Patterns
 - **Avatar URLs**: Always use `width=100&height=100` for consistent user avatars across screens

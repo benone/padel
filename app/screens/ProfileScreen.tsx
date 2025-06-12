@@ -19,14 +19,15 @@ import {
 } from '../components/ui';
 import { ProfileHeader, ProfileInfo, styles } from '../components/profile';
 import { usersAPI, authAPI } from '../services/api';
+import type { User, Club } from '../services/api';
 import { getStaticImageUrl, getImageUrl } from '../config/api.config';
 
-export default function ProfileScreen({ navigation, route }) {
+export default function ProfileScreen({ navigation, route }: { navigation: any, route?: any }) {
   const [activeTab, setActiveTab] = useState('activities');
-  const [userProfile, setUserProfile] = useState(null);
-  const [userStats, setUserStats] = useState(null);
-  const [connections, setConnections] = useState([]);
-  const [clubs, setClubs] = useState([]);
+  const [userProfile, setUserProfile] = useState<User | null>(null);
+  const [userStats, setUserStats] = useState<any>(null);
+  const [connections, setConnections] = useState<User[]>([]);
+  const [clubs, setClubs] = useState<Club[]>([]);
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
@@ -47,16 +48,82 @@ export default function ProfileScreen({ navigation, route }) {
       
       // Load all profile data for the target user
       const [profileRes, statsRes, connectionsRes, clubsRes] = await Promise.all([
-        usersAPI.getProfile(targetUserId),
-        usersAPI.getStats(targetUserId),
-        usersAPI.getConnections(targetUserId),
-        usersAPI.getClubs(targetUserId)
+        usersAPI.getProfile(targetUserId.toString()),
+        usersAPI.getStats(targetUserId.toString()),
+        usersAPI.getConnections(targetUserId.toString()),
+        usersAPI.getClubs(targetUserId.toString())
       ]);
       
-      setUserProfile(profileRes.data);
+      // Transform JSON:API responses if needed
+      const transformUser = (apiData: any): User | null => {
+        if (!apiData) return null;
+        
+        // Handle direct API response
+        if (apiData.id && apiData.name) {
+          return apiData;
+        }
+        
+        // Handle JSON:API format
+        if (apiData.data?.attributes) {
+          return {
+            id: parseInt(apiData.data.id),
+            name: apiData.data.attributes.name,
+            email: apiData.data.attributes.email,
+            level: parseFloat(apiData.data.attributes.level) || 0,
+            level_name: apiData.data.attributes.level_name,
+            avatar: apiData.data.attributes.avatar_url,
+            phone: apiData.data.attributes.phone,
+            preferences: apiData.data.attributes.preferences || {},
+            stats: apiData.data.attributes.stats || {},
+            created_at: apiData.data.attributes.created_at,
+            updated_at: apiData.data.attributes.updated_at
+          };
+        }
+        
+        return apiData;
+      };
+
+      const transformUsers = (apiData: any): User[] => {
+        if (!apiData) return [];
+        
+        // Handle JSON:API format
+        if (apiData.data && Array.isArray(apiData.data)) {
+          return apiData.data.map((item: any) => ({
+            id: parseInt(item.id),
+            name: item.attributes.name,
+            email: item.attributes.email,
+            level: parseFloat(item.attributes.level) || 0,
+            avatar: item.attributes.avatar_url,
+            created_at: item.attributes.created_at,
+            updated_at: item.attributes.updated_at
+          }));
+        }
+        
+        return Array.isArray(apiData) ? apiData : [];
+      };
+
+      const transformClubs = (apiData: any): Club[] => {
+        if (!apiData) return [];
+        
+        // Handle JSON:API format
+        if (apiData.data && Array.isArray(apiData.data)) {
+          return apiData.data.map((item: any) => ({
+            id: parseInt(item.id),
+            name: item.attributes.name,
+            location: item.attributes.location,
+            description: item.attributes.description,
+            created_at: item.attributes.created_at,
+            updated_at: item.attributes.updated_at
+          }));
+        }
+        
+        return Array.isArray(apiData) ? apiData : [];
+      };
+      
+      setUserProfile(transformUser(profileRes.data));
       setUserStats(statsRes.data);
-      setConnections(connectionsRes.data);
-      setClubs(clubsRes.data);
+      setConnections(transformUsers(connectionsRes.data));
+      setClubs(transformClubs(clubsRes.data));
     } catch (error) {
       console.error('Failed to load profile data:', error);
     } finally {
@@ -104,7 +171,12 @@ export default function ProfileScreen({ navigation, route }) {
   );
 }
 
-function ActivitiesTab({ userProfile, userStats, connections, clubs }) {
+function ActivitiesTab({ userProfile, userStats, connections, clubs }: { 
+  userProfile: User | null, 
+  userStats: any, 
+  connections: User[], 
+  clubs: Club[] 
+}) {
   return (
     <View>
       <View style={styles.sportsFilter}>
@@ -134,12 +206,12 @@ function PostsTab() {
   );
 }
 
-function LevelCard({ userProfile }) {
+function LevelCard({ userProfile }: { userProfile: User | null }) {
   if (!userProfile) return null;
   
   const level = userProfile.level || 0;
   const reliability = userProfile.stats?.winRate || 0;
-  const levelName = userProfile.levelName || 'Начинающий';
+  const levelName = userProfile.level_name || 'Начинающий';
   
   return (
     <View style={styles.levelCard}>
@@ -207,7 +279,7 @@ function LevelChart() {
   );
 }
 
-function PlayerPreferencesSection({ userProfile }) {
+function PlayerPreferencesSection({ userProfile }: { userProfile: User | null }) {
   if (!userProfile?.preferences) return null;
   
   const preferences = [
@@ -243,7 +315,7 @@ function RecentMatchesSection() {
   );
 }
 
-function StatisticsSection({ userProfile, userStats }) {
+function StatisticsSection({ userProfile, userStats }: { userProfile: User | null, userStats: any }) {
   if (!userProfile?.stats) return null;
   
   const stats = userProfile.stats;
@@ -280,7 +352,7 @@ function StatisticsSection({ userProfile, userStats }) {
   );
 }
 
-function PeopleSection({ connections }) {
+function PeopleSection({ connections }: { connections: User[] }) {
   if (!connections || connections.length === 0) return null;
   
   return (
@@ -291,11 +363,11 @@ function PeopleSection({ connections }) {
         {connections.map((person) => (
           <PersonCard
             key={person.id}
-            avatar={person.avatar ? getImageUrl(person.avatar) : null}
-            initials={person.name.split(' ').map(n => n[0]).join('')}
-            name={person.name}
+            avatar={person.avatar ? getImageUrl(person.avatar) : undefined}
+            initials={person.name ? person.name.split(' ').map(n => n[0]).join('') : 'U'}
+            name={person.name || 'Unknown User'}
             level={person.level?.toFixed(1) || '0.0'}
-            matches={person.matchesPlayed?.toString() || '0'}
+            matches={(person as any).matchesPlayed?.toString() || '0'}
             onPress={() => {}}
           />
         ))}
@@ -304,7 +376,7 @@ function PeopleSection({ connections }) {
   );
 }
 
-function ClubsSection({ clubs, userProfile }) {
+function ClubsSection({ clubs, userProfile }: { clubs: Club[], userProfile: User | null }) {
   if (!clubs || clubs.length === 0) return null;
   
   const userName = userProfile?.name || 'пользователя';
@@ -318,7 +390,7 @@ function ClubsSection({ clubs, userProfile }) {
           <ClubCard
             key={club.id || index}
             image={getStaticImageUrl('club-facility-1')}
-            name={club.name}
+            name={club.name || 'Unknown Club'}
             location={club.location || 'Москва'}
             onPress={() => {}}
           />
@@ -328,7 +400,7 @@ function ClubsSection({ clubs, userProfile }) {
   );
 }
 
-function RankingsSection({ userProfile }) {
+function RankingsSection({ userProfile }: { userProfile: User | null }) {
   if (!userProfile) return null;
   
   const level = userProfile.level || 0;

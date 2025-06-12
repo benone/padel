@@ -9,7 +9,7 @@ const ACTION_CARDS_CONFIG = [
   {
     title: 'Забронировать корт',
     subtitle: 'Если вы уже знаете с кем будете играть',
-    image: getGeneratedImageUrl('very realistic professional woman playing padel tennis blue toned athletic pose', 300, 150),
+    image: getGeneratedImageUrl('very realistic professional woman playing padel tennis blue toned athletic pose', 320, 128),
     icon: 'search',
     backgroundColor: colors.primary[50],
     route: 'Booking',

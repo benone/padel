@@ -32,6 +32,7 @@ export default function BookingScreen({ navigation, route }) {
   const [clubData, setClubData] = useState(null);
   const [availability, setAvailability] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [bookingConfig, setBookingConfig] = useState(null);
   
   // Get club ID from route params or use default
@@ -70,6 +71,11 @@ export default function BookingScreen({ navigation, route }) {
 
   // Load availability when date changes
   useEffect(() => {
+    console.log('🔍 Availability useEffect triggered:', { 
+      clubData: !!clubData, 
+      selectedDate, 
+      availabilityLength: availability.length 
+    });
     if (clubData && selectedDate) {
       loadAvailability();
     }
@@ -97,17 +103,69 @@ export default function BookingScreen({ navigation, route }) {
 
   const loadAvailability = async () => {
     try {
+      setAvailabilityLoading(true);
+      console.log('🔄 Loading availability data...');
       const date = new Date();
       date.setDate(date.getDate() + selectedDate - new Date().getDate());
       const dateStr = date.toISOString().split('T')[0];
       
-      const response = await clubsAPI.getAvailability(clubId, {
-        date: dateStr,
-        sport: 'padel'
-      });
-      setAvailability(response.data.timeSlots || []);
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Availability request timeout')), 10000)
+      );
+      
+      const response = await Promise.race([
+        clubsAPI.getAvailability(clubId, {
+          date: dateStr,
+          sport: 'padel'
+        }),
+        timeoutPromise
+      ]);
+      
+      console.log('✅ Availability data loaded:', response);
+      console.log('📊 Response structure:', JSON.stringify(response, null, 2));
+      
+      // Check if response has the expected structure
+      if (!response || !response.data) {
+        console.warn('⚠️ Invalid response structure:', response);
+        setAvailability([]);
+        return;
+      }
+      
+      // Transform the flat array of time slots into grouped format
+      const timeSlots = response.data.timeSlots || [];
+      const groupedSlots = timeSlots.reduce((acc, slot) => {
+        const existingTime = acc.find(item => item.time === slot.time);
+        const court = {
+          id: slot.court_id,
+          available: slot.available,
+          price: slot.price
+        };
+        
+        if (existingTime) {
+          existingTime.courts.push(court);
+        } else {
+          acc.push({
+            time: slot.time,
+            courts: [court]
+          });
+        }
+        return acc;
+      }, []);
+      
+      console.log('📊 Transformed availability data:', JSON.stringify(groupedSlots, null, 2));
+      setAvailability(groupedSlots);
+      console.log('✅ Availability state updated successfully');
     } catch (error) {
-      console.error('Failed to load availability:', error);
+      console.error('❌ Failed to load availability:', error);
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack
+      });
+      // Set empty availability on error to prevent infinite loading
+      setAvailability([]);
+    } finally {
+      setAvailabilityLoading(false);
     }
   };
 
@@ -187,7 +245,7 @@ export default function BookingScreen({ navigation, route }) {
               setShowAvailableOnly={setShowAvailableOnly}
               availability={availability}
               onBooking={handleBooking}
-              loading={loading}
+              availabilityLoading={availabilityLoading}
             />
           )}
 
@@ -302,7 +360,7 @@ function ReservationTab({
   setShowAvailableOnly,
   availability,
   onBooking,
-  loading
+  availabilityLoading
 }) {
   const handleTimeSlotPress = (timeSlot, courtId) => {
     setSelectedTime(timeSlot);
@@ -332,13 +390,23 @@ function ReservationTab({
         />
       </View>
 
+      {(() => {
+        console.log('🎯 TimeSlotGrid render state:', { 
+          availabilityLoading, 
+          availabilityCount: availability.length,
+          selectedTime,
+          showAvailableOnly 
+        });
+        return null;
+      })()}
+      
       <TimeSlotGrid 
         selectedTime={selectedTime} 
         setSelectedTime={setSelectedTime}
         availability={availability}
         showAvailableOnly={showAvailableOnly}
         onTimeSlotPress={handleTimeSlotPress}
-        loading={loading}
+        loading={availabilityLoading}
       />
 
       <TouchableOpacity style={styles.alertRow}>

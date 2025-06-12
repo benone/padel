@@ -37,6 +37,7 @@
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@types/react": "~19.0.10",
+    "openapi-typescript-codegen": "^0.29.0",
     "typescript": "~5.7.2"
   },
   "private": true

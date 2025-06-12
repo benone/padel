@@ -3,10 +3,12 @@ import { API_BASE_URL } from '@env';
 
 // Base URL for API calls - uses environment variable or defaults to worker
 const getBaseUrl = () => {
+  return API_BASE_URL;
   // In production builds, API_BASE_URL from .env may be undefined
   // Always fallback to Cloudflare Worker for reliability
-  const url = API_BASE_URL;
-  return url.replace('/api', '');
+    // const url = API_BASE_URL || 'http://localhost:3000';
+    // // Remove trailing /api if present to avoid duplication
+    // return url.endsWith('/api') ? url.slice(0, -4) : url;
 };
 
 const getApiUrl = () => {
@@ -25,9 +27,9 @@ export const getImageUrl = (path) => {
 };
 
 // Helper function to build API image generation URLs
-export const getGeneratedImageUrl = (prompt, width = 100, height = 100) => {
+export const getGeneratedImageUrl = (prompt, width = 128, height = 128) => {
   const encodedPrompt = encodeURIComponent(prompt);
-  return `${API_URL}/images-simple/generate?prompt=${encodedPrompt}&width=${width}&height=${height}`;
+  return `${API_URL}/api/images/generate?prompt=${encodedPrompt}&width=${width}&height=${height}`;
 };
 
 // Helper function for static images

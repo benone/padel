@@ -40,27 +40,123 @@ export default function MatchDetailsScreen({ navigation, route }) {
     try {
       setLoading(true);
       const response = await matchesAPI.getDetails(matchId);
-      setMatchData(response.data);
+      
+      console.log('🔧 DEBUG - Match details response:', {
+        hasData: !!response.data,
+        dataType: typeof response.data,
+        hasDataProperty: response.data?.data ? 'yes' : 'no',
+        dataKeys: response.data ? Object.keys(response.data) : 'none'
+      });
+
+      // Process the JSONAPI response to extract match data and players
+      let processedMatchData = {};
+      
+      if (response.data?.data) {
+        // JSONAPI format: { data: {...}, included: [...] }
+        const match = response.data.data;
+        const attrs = match.attributes || {};
+        const included = response.data.included || [];
+        
+        // Extract player information using same logic as OpenMatchesScreen
+        const players = [];
+        const addedPlayerIds = new Set(); // Track added players to prevent duplicates
+        
+        // Add organizer if available
+        if (match.relationships?.organizer?.data) {
+          const organizerId = match.relationships.organizer.data.id;
+          const organizerData = included.find(item => 
+            item.type === 'players' && item.id === organizerId
+          );
+          
+          if (organizerData && !addedPlayerIds.has(organizerId)) {
+            players.push({
+              id: organizerData.id,
+              name: organizerData.attributes.name,
+              level: parseFloat(organizerData.attributes.level),
+              avatar: organizerData.attributes.avatar_url,
+              isOrganizer: true
+            });
+            addedPlayerIds.add(organizerId);
+          }
+        }
+        
+        // Add participants if any (skip if already added as organizer)
+        if (match.relationships?.participants?.data) {
+          match.relationships.participants.data.forEach(participant => {
+            const participantData = included.find(item => 
+              item.type === 'players' && item.id === participant.id
+            );
+            
+            if (participantData && !addedPlayerIds.has(participant.id)) {
+              players.push({
+                id: participantData.id,
+                name: participantData.attributes.name,
+                level: parseFloat(participantData.attributes.level),
+                avatar: participantData.attributes.avatar_url,
+                isOrganizer: false
+              });
+              addedPlayerIds.add(participant.id);
+            }
+          });
+        }
+        
+        // Extract club information
+        let clubData = { name: 'Падел клуб', location: 'Москва' };
+        if (match.relationships?.club?.data) {
+          const clubId = match.relationships.club.data.id;
+          const club = included.find(item => 
+            item.type === 'clubs' && item.id === clubId
+          );
+          
+          if (club) {
+            clubData = {
+              name: club.attributes.name,
+              location: club.attributes.description || 'Москва'
+            };
+          }
+        }
+        
+        // Build processed match data
+        processedMatchData = {
+          id: match.id,
+          date: attrs.match_date,
+          sport: 'ПАДЕЛ',
+          competitive: false, // Default to friendly
+          genderPreference: attrs.gender_preference || 'mixed',
+          levelRange: [attrs.level_min || '6.0', attrs.level_max || '8.0'],
+          price: attrs.price_per_person || '625',
+          players: players,
+          playersNeeded: attrs.spots_available || 2,
+          club: clubData,
+          duration: attrs.duration || 90,
+          description: attrs.description
+        };
+        
+        console.log('🔧 DEBUG - Processed match data:', {
+          matchId: processedMatchData.id,
+          playersCount: players.length,
+          clubName: clubData.name,
+          players: players.map(p => ({ id: p.id, name: p.name, isOrganizer: p.isOrganizer }))
+        });
+        
+      } else {
+        // Legacy format fallback
+        processedMatchData = response.data;
+      }
+      
+      setMatchData(processedMatchData);
     } catch (error) {
       console.error('Failed to load match details:', error);
-      // Fallback to sample data if API fails
+      // Minimal fallback data
       setMatchData({
-        date: 'Воскресенье, 8 июня',
-        time: '09:00 - 10:30',
-        type: 'Соревновательный',
-        levelRange: '0.49-1.49',
-        gender: 'Все игроки',
-        price: '₽450',
-        players: [
-          { name: 'Анна', level: 0.74, initials: 'А' },
-          { name: 'Кирилл', level: null, initials: 'К', isCurrentUser: true },
-          { name: 'Дмитрий', level: 0.85, initials: 'Д' },
-          { name: 'Доступно', available: true }
-        ],
-        club: {
-          name: 'Спортивный клуб "Чемпион"',
-          location: 'Москва'
-        }
+        date: new Date().toISOString(),
+        sport: 'ПАДЕЛ',
+        genderPreference: 'mixed',
+        levelRange: ['6.0', '8.0'],
+        price: '625',
+        players: [],
+        playersNeeded: 4,
+        club: { name: 'Падел клуб', location: 'Москва' }
       });
     } finally {
       setLoading(false);

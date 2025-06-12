@@ -44,7 +44,7 @@ export default function HomeScreen({ navigation }: Props): React.JSX.Element {
           <ActionCard
             title="Занятия с тренером"
             subtitle="Улучшите свою технику с профессионалом"
-            image={getGeneratedImageUrl('very realistic man playing padel tennis bright green court professional training', 600, 200)}
+            image={getGeneratedImageUrl('very realistic man playing padel tennis bright green court professional training', 640, 192)}
             icon="school"
             iconColor="#f59e0b"
             onPress={() => Alert.alert('Занятия с тренером', 'Функция скоро будет доступна')}

@@ -23,6 +23,12 @@ export default function TimeSlotGrid({
   // Use availability data if available, otherwise fall back to static TIME_SLOTS
   const timeSlots = availability.length > 0 ? availability : TIME_SLOTS.map(time => ({ time, courts: [] }));
 
+  console.log('🎰 TimeSlotGrid data:', { 
+    timeSlotsCount: timeSlots.length, 
+    showAvailableOnly,
+    sampleSlot: timeSlots[0] 
+  });
+
   return (
     <View style={styles.slotsWrap}>
       {timeSlots.map((timeSlot) => {
@@ -34,6 +40,7 @@ export default function TimeSlotGrid({
         
         // Skip if showing only available and no courts available
         if (showAvailableOnly && !hasAvailability && courts.length > 0) {
+          console.log(`⏭️ Skipping ${time}: no available courts (${availableCourts.length}/${courts.length})`);
           return null;
         }
 

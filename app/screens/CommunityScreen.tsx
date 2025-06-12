@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, typography } from '../constants';
 import { Avatar, Button, Chip, PersonCard } from '../components/ui';
 import { communityAPI } from '../services/api';
+import type { Post, User } from '../services/api';
 import { getImageUrl } from '../config/api.config';
 
 
@@ -24,8 +25,8 @@ export default function CommunityScreen() {
   const [searchText, setSearchText] = useState('');
   
   // API data states
-  const [posts, setPosts] = useState([]);
-  const [suggestions, setSuggestions] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [suggestions, setSuggestions] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -44,11 +45,43 @@ export default function CommunityScreen() {
         communityAPI.getSuggestions({ limit: 4 })
       ]);
 
-      console.log('✅ CommunityScreen: Posts loaded:', postsResponse.data.posts?.length || 0);
-      console.log('✅ CommunityScreen: Suggestions loaded:', suggestionsResponse.data.length);
+      // Transform JSON:API format to flat objects
+      const transformedPosts = (postsResponse.data?.data || []).map((item: any) => ({
+        id: parseInt(item.id),
+        content: item.attributes.content,
+        created_at: item.attributes.created_at,
+        image_url: item.attributes.image_url,
+        likes: item.attributes.likes_count || 0,
+        comments: item.attributes.comments_count || 0,
+        liked: item.attributes.liked || false,
+        user: item.relationships?.user?.data ? {
+          id: parseInt(item.relationships.user.data.id),
+          name: item.relationships.user.data.attributes?.name || 'Unknown User',
+          avatar: item.relationships.user.data.attributes?.avatar_url,
+          verified: item.relationships.user.data.attributes?.verified || false
+        } : {
+          id: 1,
+          name: 'Unknown User',
+          avatar: null,
+          verified: false
+        }
+      }));
+
+      const transformedSuggestions = (suggestionsResponse.data?.data || []).map((item: any) => ({
+        id: parseInt(item.id),
+        name: item.attributes.name,
+        email: item.attributes.email,
+        avatar: item.attributes.avatar_url,
+        verified: item.attributes.verified || false,
+        created_at: item.attributes.created_at,
+        updated_at: item.attributes.updated_at
+      }));
+
+      console.log('✅ CommunityScreen: Posts loaded:', transformedPosts.length);
+      console.log('✅ CommunityScreen: Suggestions loaded:', transformedSuggestions.length);
       
-      setPosts(postsResponse.data.posts || []);
-      setSuggestions(suggestionsResponse.data || []);
+      setPosts(transformedPosts);
+      setSuggestions(transformedSuggestions);
     } catch (error) {
       console.error('❌ CommunityScreen: Failed to load community data:', error);
     } finally {
@@ -62,16 +95,20 @@ export default function CommunityScreen() {
     setRefreshing(false);
   };
 
-  const handleLikePost = async (postId) => {
+  const handleLikePost = async (postId: number) => {
     try {
-      const response = await communityAPI.likePost(postId);
+      const response = await communityAPI.likePost(postId.toString());
       console.log('❤️ CommunityScreen: Post liked:', response.data);
       
-      // Update local state
+      // Update local state - toggle like status and increment/decrement likes
       setPosts(prevPosts => 
         prevPosts.map(post => 
           post.id === postId 
-            ? { ...post, likes: response.data.newLikeCount, liked: response.data.liked }
+            ? { 
+                ...post, 
+                likes: (post.likes || 0) + (post.liked ? -1 : 1),
+                liked: !post.liked 
+              }
             : post
         )
       );
@@ -80,9 +117,9 @@ export default function CommunityScreen() {
     }
   };
 
-  const handleFollowUser = async (userId) => {
+  const handleFollowUser = async (userId: number) => {
     try {
-      const response = await communityAPI.followUser(userId);
+      const response = await communityAPI.followUser(userId.toString());
       console.log('👥 CommunityScreen: User followed:', response.data);
       
       // Update local state
@@ -94,21 +131,21 @@ export default function CommunityScreen() {
     }
   };
 
-  const renderPostCard = ({ item }) => (
+  const renderPostCard = ({ item }: { item: Post }) => (
     <View style={styles.postCard}>
       {/* Post Header */}
       <View style={styles.postHeader}>
         <Avatar 
-          uri={item.user.avatar ? getImageUrl(item.user.avatar) : null}
-          initials={item.user.name.split(' ').map(n => n[0]).join('')}
+          uri={item.user?.avatar ? getImageUrl(item.user.avatar) : undefined}
+          initials={item.user?.name ? item.user.name.split(' ').map(n => n[0]).join('') : 'U'}
           size="small"
         />
         <View style={styles.postUserInfo}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={styles.postUserName}>
-              {item.user.name}
+              {item.user?.name || 'Unknown User'}
             </Text>
-            {item.user.verified && (
+            {item.user?.verified && (
               <Ionicons 
                 name="checkmark-circle" 
                 size={16} 
@@ -117,7 +154,7 @@ export default function CommunityScreen() {
               />
             )}
           </View>
-          <Text style={styles.postTimestamp}>{item.timestamp}</Text>
+          <Text style={styles.postTimestamp}>{item.created_at || 'Unknown time'}</Text>
         </View>
         <TouchableOpacity>
           <Ionicons name="ellipsis-horizontal" size={20} color={colors.text.secondary} />
@@ -126,13 +163,13 @@ export default function CommunityScreen() {
 
       {/* Post Content */}
       <View style={styles.postContent}>
-        <Text style={styles.postText}>{item.content}</Text>
+        <Text style={styles.postText}>{item.content || ''}</Text>
       </View>
 
       {/* Post Image */}
-      {item.image && (
+      {item.image_url && (
         <Image 
-          source={{ uri: getImageUrl(item.image) }}
+          source={{ uri: getImageUrl(item.image_url) }}
           style={styles.postImage}
           resizeMode="cover"
         />
@@ -149,27 +186,27 @@ export default function CommunityScreen() {
             size={24} 
             color={item.liked ? "#ef4444" : colors.text.secondary} 
           />
-          <Text style={styles.actionText}>{item.likes}</Text>
+          <Text style={styles.actionText}>{item.likes || 0}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
           <Ionicons name="chatbubble-outline" size={22} color={colors.text.secondary} />
-          <Text style={styles.actionText}>{item.comments}</Text>
+          <Text style={styles.actionText}>{item.comments || 0}</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 
-  const renderSuggestionCard = ({ item }) => (
+  const renderSuggestionCard = ({ item }: { item: User }) => (
     <View style={styles.suggestionCard}>
       <Avatar 
-        uri={item.avatar ? getImageUrl(item.avatar) : null}
-        initials={item.name.split(' ').map(n => n[0]).join('')}
+        uri={item.avatar ? getImageUrl(item.avatar) : undefined}
+        initials={item.name ? item.name.split(' ').map(n => n[0]).join('') : 'U'}
         size="large"
       />
       <View style={styles.suggestionCardContent}>
         <View style={styles.suggestionNameContainer}>
           <Text style={styles.suggestionName}>
-            {item.name}
+            {item.name || 'Unknown User'}
           </Text>
           {item.verified && (
             <Ionicons 
@@ -277,7 +314,7 @@ export default function CommunityScreen() {
                 id: 'add-friends', 
                 name: 'Добавить друзей из телефонной книги',
                 isAddFriends: true 
-              },
+              } as any,
               ...suggestions
             ]}
             renderItem={({ item }) => {
@@ -298,7 +335,7 @@ export default function CommunityScreen() {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 16 }}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.id?.toString() || 'add-friends'}
           />
         </View>
 
